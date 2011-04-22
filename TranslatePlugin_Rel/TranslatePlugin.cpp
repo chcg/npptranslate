@@ -135,15 +135,23 @@ void commandMenuInit()
     sk->_isShift = false;
     sk->_key = 'Z';
 
+	ShortcutKey* sk_x = new ShortcutKey;
+    sk_x->_isAlt = true;
+    sk_x->_isCtrl = true;
+    sk_x->_isShift = true;
+    sk_x->_key = 'Z';
+
     setCommand(0, TEXT("Translate Selected"), TranslateText, sk, false);
-    setCommand(1, TEXT("Change Language Preference"), editConfiguration, NULL, false);
-	setCommand(2, TEXT("About"), AboutDlg, NULL, false);
+	setCommand(1, TEXT("Translate Selected (Reverse Preference"), TranslateText_Reverse, sk_x, false);
+    setCommand(2, TEXT("Change Language Preference"), editConfiguration, NULL, false);
+	setCommand(3, TEXT("About"), AboutDlg, NULL, false);
 }
 
 
 void commandMenuCleanUp()
 {
 	delete funcItem[0]._pShKey;
+	delete funcItem[1]._pShKey;
 }
 
 
@@ -363,7 +371,43 @@ HWND GetCurrentEditHandle()
 void AboutDlg()
 {
 
-	wstring aboutText(L"Translate Plugin For Notepad++\n\nVersion: 0.0.0.1\nAuthor: Shaleen Mishra\nContact: shaleen.mishra@gmail.com");
+	wstring aboutText(L"Translate Plugin For Notepad++\n\nVersion: 0.0.1.0\nAuthor: Shaleen Mishra\nContact: shaleen.mishra@gmail.com");
 
 	::MessageBox(NULL, aboutText.c_str(), TEXT("Translate"), MB_OK);
+}
+
+void TranslateText_Reverse()
+{
+	wstring text;
+    getSelectedText(text);
+
+	if(text.empty())
+		return;
+
+	wstring outText;
+	string error;
+
+	wchar_t from[10];
+	wchar_t to[10];
+
+	getConfiguration(from, to);
+
+	if(from[0] == '\0')
+	{
+		::MessageBox(NULL, TEXT("This feature is not available for auto-detect settings!\nChange configuration file to a valid source language code and Retry."), TEXT("Translate Error!"), MB_OK);
+		return;
+	}
+
+	//Send opposite language settings
+	TrOD::Translate(text,outText,to,from,error);
+	
+	if(error.empty())
+	{
+		::MessageBox(NULL, outText.c_str(), TEXT("Translate"), MB_OK);
+	}
+	else 
+	{
+		wstring w_error (error.begin(), error.end());
+		::MessageBox(NULL, w_error.c_str(), TEXT("Translate Error!"), MB_OK);
+	}
 }

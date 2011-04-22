@@ -29,7 +29,7 @@ using namespace std;
 const TCHAR NPP_PLUGIN_NAME[] = TEXT("Translate");
 
 
-const int nbFunc = 3;
+const int nbFunc = 4;
 
 void pluginInit(HANDLE hModule);
 
@@ -47,6 +47,7 @@ bool setCommand(size_t index, TCHAR *cmdName, PFUNCPLUGINCMD pFunc, ShortcutKey 
 //
 
 void TranslateText();
+void TranslateText_Reverse();
 HWND GetCurrentEditHandle();
 void getSelectedText(wstring& outText);
 void AboutDlg();
