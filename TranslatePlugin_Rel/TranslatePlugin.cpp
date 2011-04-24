@@ -23,6 +23,7 @@
 
 #include <Shlwapi.h>
 #include <fstream>
+#include <ctype.h>
 
 extern FuncItem funcItem[nbFunc];
 extern NppData nppData;
@@ -141,10 +142,17 @@ void commandMenuInit()
     sk_x->_isShift = true;
     sk_x->_key = 'Z';
 
+	ShortcutKey* sk_code = new ShortcutKey;
+    sk_code->_isAlt = true;
+    sk_code->_isCtrl = true;
+    sk_code->_isShift = false;
+    sk_code->_key = 'X';
+
     setCommand(0, TEXT("Translate Selected"), TranslateText, sk, false);
 	setCommand(1, TEXT("Translate Selected (Reverse Preference"), TranslateText_Reverse, sk_x, false);
-    setCommand(2, TEXT("Change Language Preference"), editConfiguration, NULL, false);
-	setCommand(3, TEXT("About"), AboutDlg, NULL, false);
+	setCommand(2, TEXT("Translate Code Style Strings"), TranslateCodeString, sk_code, false);
+    setCommand(3, TEXT("Change Language Preference"), editConfiguration, NULL, false);
+	setCommand(4, TEXT("About"), AboutDlg, NULL, false);
 }
 
 
@@ -152,6 +160,7 @@ void commandMenuCleanUp()
 {
 	delete funcItem[0]._pShKey;
 	delete funcItem[1]._pShKey;
+	delete funcItem[2]._pShKey;
 }
 
 
@@ -371,7 +380,7 @@ HWND GetCurrentEditHandle()
 void AboutDlg()
 {
 
-	wstring aboutText(L"Translate Plugin For Notepad++\n\nVersion: 0.0.1.0\nAuthor: Shaleen Mishra\nContact: shaleen.mishra@gmail.com");
+	wstring aboutText(L"Translate Plugin For Notepad++\n\nVersion: 0.0.2.0\nAuthor: Shaleen Mishra\nContact: shaleen.mishra@gmail.com");
 
 	::MessageBox(NULL, aboutText.c_str(), TEXT("Translate"), MB_OK);
 }
@@ -410,4 +419,80 @@ void TranslateText_Reverse()
 		wstring w_error (error.begin(), error.end());
 		::MessageBox(NULL, w_error.c_str(), TEXT("Translate Error!"), MB_OK);
 	}
+}
+
+void DecoupleMixedCase(const wstring& in, wstring& out)
+{
+	bool hasLower,hasUpper;
+	int len = in.length();
+	out.assign(L"");
+
+	for(int i = 0; i<len; i++)
+	{
+		if(!islower(in[i]))
+		{
+			hasUpper= true;
+			out.append(L" ");
+		}
+		else
+			hasLower= true;
+
+		out.append(1,in[i]);
+	}
+
+	if(!(hasUpper && hasLower))
+		out.assign(in);
+
+}
+
+void replaceUndescores(const wstring& in, wstring& out)
+{
+	int len = in.length();
+	out.assign(L"");
+
+	for(int i = 0; i<len; i++)
+	{
+		if(in[i]=='_')
+		{
+			out.append(L" ");
+		}
+		else
+			out.append(1,in[i]);
+	}
+
+}
+
+void TranslateCodeString()
+{
+	wstring text, textModUnd, textModMix;
+
+    getSelectedText(text);
+
+	if(text.empty())
+		return;
+	
+	replaceUndescores(text,textModUnd);
+	DecoupleMixedCase(textModUnd,textModMix);
+
+	wstring outText;
+	string error;
+
+	wchar_t from[10];
+	wchar_t to[10];
+
+	getConfiguration(from, to);
+
+	TrOD::Translate(textModMix,outText,from,to, error);
+	
+	if(error.empty())
+	{
+		::MessageBox(NULL, outText.c_str(), TEXT("Translate"), MB_OK);
+	}
+	else 
+	{
+		wstring w_error (error.begin(), error.end());
+		::MessageBox(NULL, w_error.c_str(), TEXT("Translate Error!"), MB_OK);
+	}
+
+
 }

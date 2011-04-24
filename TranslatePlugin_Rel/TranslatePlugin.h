@@ -29,7 +29,7 @@ using namespace std;
 const TCHAR NPP_PLUGIN_NAME[] = TEXT("Translate");
 
 
-const int nbFunc = 4;
+const int nbFunc = 5;
 
 void pluginInit(HANDLE hModule);
 
@@ -51,9 +51,12 @@ void TranslateText_Reverse();
 HWND GetCurrentEditHandle();
 void getSelectedText(wstring& outText);
 void AboutDlg();
+void DecoupleMixedCase(const wstring& in, wstring& out);
+void replaceUndescores(const wstring& in, wstring& out);
 
 void editConfiguration();
 int setupConfigurationFile();
 int getConfiguration(wchar_t* from, wchar_t* to);
+void TranslateCodeString();
 
 #endif //PLUGINDEFINITION_H
