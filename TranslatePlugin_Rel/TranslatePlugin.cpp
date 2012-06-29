@@ -376,7 +376,11 @@ HWND GetCurrentEditHandle()
 void AboutDlg()
 {
 
-	wstring aboutText(L"Translate Plugin For Notepad++\n\nVersion: 0.0.2.0\nAuthor: Shaleen Mishra\nContact: shaleen.mishra@gmail.com");
+#ifdef MYDEBUG
+	wstring aboutText(L"DEBUG MODEm");
+#else
+	wstring aboutText(L"Translate Plugin For Notepad++\n\nVersion: 0.0.3.0\nAuthor: Shaleen Mishra\nContact: shaleen.mishra@gmail.com");
+#endif
 
 	::MessageBox(NULL, aboutText.c_str(), TEXT("Translate"), MB_OK);
 }
