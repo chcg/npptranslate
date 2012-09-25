@@ -10,36 +10,16 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libTrOD", "..\libTrOD\libTr
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Win32 = Debug|Win32
 		MyDebugFromRel|Win32 = MyDebugFromRel|Win32
-		Release|Win32 = Release|Win32
-		Unicode Debug_old|Win32 = Unicode Debug_old|Win32
-		Unicode Debug|Win32 = Unicode Debug|Win32
 		Unicode Realeas|Win32 = Unicode Realeas|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{1590D7CD-7D3A-4AB7-A355-EE02F7FB987D}.Debug|Win32.ActiveCfg = Unicode Debug|Win32
-		{1590D7CD-7D3A-4AB7-A355-EE02F7FB987D}.Debug|Win32.Build.0 = Unicode Debug|Win32
-		{1590D7CD-7D3A-4AB7-A355-EE02F7FB987D}.MyDebugFromRel|Win32.ActiveCfg = MyDebugFromRel|Win32
-		{1590D7CD-7D3A-4AB7-A355-EE02F7FB987D}.MyDebugFromRel|Win32.Build.0 = MyDebugFromRel|Win32
-		{1590D7CD-7D3A-4AB7-A355-EE02F7FB987D}.Release|Win32.ActiveCfg = ANSI Release|Win32
-		{1590D7CD-7D3A-4AB7-A355-EE02F7FB987D}.Release|Win32.Build.0 = ANSI Release|Win32
-		{1590D7CD-7D3A-4AB7-A355-EE02F7FB987D}.Unicode Debug_old|Win32.ActiveCfg = Unicode Debug_old|Win32
-		{1590D7CD-7D3A-4AB7-A355-EE02F7FB987D}.Unicode Debug_old|Win32.Build.0 = Unicode Debug_old|Win32
-		{1590D7CD-7D3A-4AB7-A355-EE02F7FB987D}.Unicode Debug|Win32.ActiveCfg = Unicode Debug|Win32
-		{1590D7CD-7D3A-4AB7-A355-EE02F7FB987D}.Unicode Debug|Win32.Build.0 = Unicode Debug|Win32
+		{1590D7CD-7D3A-4AB7-A355-EE02F7FB987D}.MyDebugFromRel|Win32.ActiveCfg = Unicode Realeas|Win32
+		{1590D7CD-7D3A-4AB7-A355-EE02F7FB987D}.MyDebugFromRel|Win32.Build.0 = Unicode Realeas|Win32
 		{1590D7CD-7D3A-4AB7-A355-EE02F7FB987D}.Unicode Realeas|Win32.ActiveCfg = Unicode Realeas|Win32
 		{1590D7CD-7D3A-4AB7-A355-EE02F7FB987D}.Unicode Realeas|Win32.Build.0 = Unicode Realeas|Win32
-		{F71E992C-CBC4-4B24-9ED6-B01AFE7B6149}.Debug|Win32.ActiveCfg = Debug|Win32
-		{F71E992C-CBC4-4B24-9ED6-B01AFE7B6149}.Debug|Win32.Build.0 = Debug|Win32
-		{F71E992C-CBC4-4B24-9ED6-B01AFE7B6149}.MyDebugFromRel|Win32.ActiveCfg = MyDebugFromRel|Win32
-		{F71E992C-CBC4-4B24-9ED6-B01AFE7B6149}.MyDebugFromRel|Win32.Build.0 = MyDebugFromRel|Win32
-		{F71E992C-CBC4-4B24-9ED6-B01AFE7B6149}.Release|Win32.ActiveCfg = Release|Win32
-		{F71E992C-CBC4-4B24-9ED6-B01AFE7B6149}.Release|Win32.Build.0 = Release|Win32
-		{F71E992C-CBC4-4B24-9ED6-B01AFE7B6149}.Unicode Debug_old|Win32.ActiveCfg = Debug|Win32
-		{F71E992C-CBC4-4B24-9ED6-B01AFE7B6149}.Unicode Debug_old|Win32.Build.0 = Debug|Win32
-		{F71E992C-CBC4-4B24-9ED6-B01AFE7B6149}.Unicode Debug|Win32.ActiveCfg = Unicode Debug|Win32
-		{F71E992C-CBC4-4B24-9ED6-B01AFE7B6149}.Unicode Debug|Win32.Build.0 = Unicode Debug|Win32
+		{F71E992C-CBC4-4B24-9ED6-B01AFE7B6149}.MyDebugFromRel|Win32.ActiveCfg = Unicode Realeas|Win32
+		{F71E992C-CBC4-4B24-9ED6-B01AFE7B6149}.MyDebugFromRel|Win32.Build.0 = Unicode Realeas|Win32
 		{F71E992C-CBC4-4B24-9ED6-B01AFE7B6149}.Unicode Realeas|Win32.ActiveCfg = Unicode Realeas|Win32
 		{F71E992C-CBC4-4B24-9ED6-B01AFE7B6149}.Unicode Realeas|Win32.Build.0 = Unicode Realeas|Win32
 	EndGlobalSection
