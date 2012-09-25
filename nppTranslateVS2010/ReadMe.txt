@@ -9,3 +9,6 @@ In order to build this project:
 -	Replace <your app id> with the one you got in step 1.
 - 	Save and close the file.
 -	Open .\TranslatePlugin_Rel\Translate.sln with VS2010 and build.
+
+
+TIP: Run Visual Studio as admin if running on Win7
