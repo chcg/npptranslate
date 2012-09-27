@@ -86,6 +86,8 @@ void TranslateOnDemand::getTranslation(wstring& request, wstring& response, wstr
 
 		retVal.append(*trResponse.TranslateResult);
 
+		retVal.append(L"\n\n");
+
 		response = retVal;
 	}
 	else

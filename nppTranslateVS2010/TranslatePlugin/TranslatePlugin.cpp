@@ -26,6 +26,9 @@
 #include <ctype.h>
 #include <stdlib.h> 
 #include "MSGS.h"
+#include "UTILS.h"
+
+using namespace std;
 
 extern FuncItem funcItem[nbFunc];
 extern NppData nppData;
@@ -202,7 +205,7 @@ void getSelectedText(wstring& outText)
 			tr.lpstrText = &buf[0];
 			SendMessage(editHandle, SCI_GETTEXTRANGE, 0, (LPARAM)&tr);
 
-			int sizeStr = MultiByteToWideChar(CP_ACP, 0, tr.lpstrText, -1, NULL, 0);
+			int sizeStr = MultiByteToWideChar(CP_UTF8, 0, tr.lpstrText, -1, NULL, 0);
 
 			if(sizeStr>2000)
 			{
@@ -217,7 +220,7 @@ void getSelectedText(wstring& outText)
 				delete []wStringRaw;
 			}
 
-			MultiByteToWideChar(CP_ACP, 0, tr.lpstrText, -1, wStringRaw, sizeStr);
+			MultiByteToWideChar(CP_UTF8, 0, tr.lpstrText, -1, wStringRaw, sizeStr);
 			outText.assign(wStringRaw);
 
 			delete []wStringRaw;
@@ -254,7 +257,15 @@ void TranslateText()
 	
 	if(error.empty())
 	{
-		::MessageBox(nppData._nppHandle, outText.c_str(), TEXT("Translate"), MB_OK);
+		wstring tempStr = outText;
+		tempStr.append(L"\nDo you want to copy translated text to clipboard?\n");
+
+		if(::MessageBox(nppData._nppHandle, tempStr.c_str(), TEXT("Translate"), MB_YESNO) == IDYES)
+		{
+			CopyTranslatedTextDataToClipBoard(outText);
+
+		}
+		
 	}
 	else 
 	{
@@ -455,7 +466,16 @@ void TranslateText_Reverse()
 	
 	if(error.empty())
 	{
-		::MessageBox(nppData._nppHandle, outText.c_str(), TEXT("Translate"), MB_OK);
+		wstring tempStr = outText;
+		tempStr.append(L"\nDo you want to copy translated text to clipboard?\n");
+
+		if(::MessageBox(nppData._nppHandle, tempStr.c_str(), TEXT("Translate"), MB_YESNO) == IDYES)
+		{
+			CopyTranslatedTextDataToClipBoard(outText);
+
+		}
+
+		//::MessageBox(nppData._nppHandle, outText.c_str(), TEXT("Translate"), MB_OK);
 	}
 	else 
 	{
@@ -531,7 +551,15 @@ void TranslateCodeString()
 	
 	if(error.empty())
 	{
-		::MessageBox(nppData._nppHandle, outText.c_str(), TEXT("Translate"), MB_OK);
+		wstring tempStr = outText;
+		tempStr.append(L"\nDo you want to copy translated text to clipboard?\n");
+
+		if(::MessageBox(nppData._nppHandle, tempStr.c_str(), TEXT("Translate"), MB_YESNO) == IDYES)
+		{
+			CopyTranslatedTextDataToClipBoard(outText);
+
+		}
+		//::MessageBox(nppData._nppHandle, outText.c_str(), TEXT("Translate"), MB_OK);
 	}
 	else 
 	{
@@ -539,5 +567,49 @@ void TranslateCodeString()
 		::MessageBox(nppData._nppHandle, w_error.c_str(), TEXT("Translate Error!"), MB_OK);
 	}
 
+}
+
+
+
+
+void CopyTranslatedTextDataToClipBoard(const std::wstring& wStrData)
+{
+	wstring wstrActualTranData = filterTranslatedTextFromOutput(wStrData);
+
+	LPWSTR cwdBuffer = (LPWSTR)(wstrActualTranData.c_str());
+
+    // Get the current working directory:
+    //if( (cwdBuffer = _wgetcwd( NULL, 0 )) == NULL )
+    //    return;// 1;
+
+    DWORD len = wcslen(cwdBuffer);
+    HGLOBAL hdst;
+    LPWSTR dst;
+
+    // Allocate string for cwd
+    hdst = GlobalAlloc(GMEM_MOVEABLE | GMEM_DDESHARE, (len + 1) * sizeof(WCHAR));
+    dst = (LPWSTR)GlobalLock(hdst);
+    memcpy(dst, cwdBuffer, len * sizeof(WCHAR));
+    dst[len] = 0;
+    GlobalUnlock(hdst);
+
+    // Set clipboard data
+    if (!OpenClipboard(NULL)) return;// GetLastError();
+    EmptyClipboard();
+    if (!SetClipboardData(CF_UNICODETEXT, hdst)) return;// GetLastError();
+    CloseClipboard();
 
 }
+
+wstring filterTranslatedTextFromOutput(const std::wstring& wStrData)
+{
+	wstring retVal;
+	
+	int posBegin = wStrData.find_first_of(L"\n\n") + 2;
+	int posEnd = wStrData.find_last_of(L"\n\n") - 2;
+
+	retVal  = wStrData.substr(posBegin, posEnd - posBegin + 1);
+
+	return retVal;
+}
+

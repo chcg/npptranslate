@@ -23,7 +23,7 @@
 //
 #include "PluginInterface.h"
 #include <iostream>
-using namespace std;
+
 
 
 const TCHAR NPP_PLUGIN_NAME[] = TEXT("Translate");
@@ -49,15 +49,19 @@ bool setCommand(size_t index, TCHAR *cmdName, PFUNCPLUGINCMD pFunc, ShortcutKey 
 void TranslateText();
 void TranslateText_Reverse();
 HWND GetCurrentEditHandle();
-void getSelectedText(wstring& outText);
+void getSelectedText(std::wstring& outText);
 void AboutDlg();
-void DecoupleMixedCase(const wstring& in, wstring& out);
-void replaceUndescores(const wstring& in, wstring& out);
+void DecoupleMixedCase(const std::wstring& in, std::wstring& out);
+void replaceUndescores(const std::wstring& in, std::wstring& out);
 
 void editConfiguration();
-int setupConfigurationFile(wstring&);
+int setupConfigurationFile(std::wstring&);
 int readLanguageConfiguration(wchar_t* from, wchar_t* to);
 void TranslateCodeString();
 void readProxySettings();
+
+void CopyTranslatedTextDataToClipBoard(const std::wstring& strData);
+
+std::wstring filterTranslatedTextFromOutput(const std::wstring& wStrData);
 
 #endif //PLUGINDEFINITION_H
