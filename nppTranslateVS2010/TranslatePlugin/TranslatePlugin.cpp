@@ -153,10 +153,11 @@ void commandMenuInit()
     sk_code->_key = 'X';
 
     setCommand(0, TEXT("Translate Selected"), TranslateText, sk, false);
-	setCommand(1, TEXT("Translate Selected (Reverse Preference"), TranslateText_Reverse, sk_x, false);
-	setCommand(2, TEXT("Translate Code Style Strings"), TranslateCodeString, sk_code, false);
+	setCommand(1, TEXT("Translate Selected-Swapped Preference"), TranslateText_Reverse, sk_x, false);
+	setCommand(2, TEXT("Translate CamelCase/underscore_case"), TranslateCodeString, sk_code, false);
     setCommand(3, TEXT("Change Language Preference"), editConfiguration, NULL, false);
 	setCommand(4, TEXT("About"), AboutDlg, NULL, false);
+	setCommand(5, TEXT("Help"), LaunchHelp, NULL, false);
 }
 
 
@@ -436,6 +437,14 @@ void AboutDlg()
 
 	::MessageBox(nppData._nppHandle, aboutText.c_str(), TEXT("Translate"), MB_OK);
 }
+
+
+void LaunchHelp()
+{
+	ShellExecute(NULL, L"open", L"https://sourceforge.net/apps/mediawiki/npptranslate/index.php?title=Main_Page", NULL, NULL, SW_SHOWNORMAL);
+}
+
+
 
 void TranslateText_Reverse()
 {
