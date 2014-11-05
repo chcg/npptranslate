@@ -1,0 +1,9 @@
+D:\MyData\GoogleDrive\Essential NonMedia\MyProjects\VSPro2013\CSharp\SVN\nppTranslateCS\obj\Debug\nppTranslateCS.Properties.Resources.resources
+D:\MyData\GoogleDrive\Essential NonMedia\MyProjects\VSPro2013\CSharp\SVN\nppTranslateCS\obj\Debug\nppTranslateCS.csproj.GenerateResource.Cache
+D:\MyData\GoogleDrive\Essential NonMedia\MyProjects\VSPro2013\CSharp\SVN\nppTranslateCS\obj\Debug\nppTranslateCS.Forms.frmTranslateSettings.resources
+C:\Program Files (x86)\Notepad++\plugins\Translate.dll.config
+C:\Program Files (x86)\Notepad++\plugins\Translate.dll
+C:\Program Files (x86)\Notepad++\plugins\Translate.pdb
+D:\MyData\GoogleDrive\Essential NonMedia\MyProjects\VSPro2013\CSharp\SVN\nppTranslateCS\obj\Debug\Translate.dll
+D:\MyData\GoogleDrive\Essential NonMedia\MyProjects\VSPro2013\CSharp\SVN\nppTranslateCS\obj\Debug\Translate.pdb
+D:\MyData\GoogleDrive\Essential NonMedia\MyProjects\VSPro2013\CSharp\SVN\nppTranslateCS\obj\Debug\nppTranslateCS.csprojResolveAssemblyReference.cache
