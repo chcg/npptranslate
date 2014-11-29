@@ -16,7 +16,12 @@ namespace nppTranslateCS
     class Main
     {
         #region " Fields "
+#if DEBUG
+        internal const string PluginName = "TranslateCSDebug";
+#else
         internal const string PluginName = "Translate";
+#endif
+
         static string iniFilePath = null;
         static int idMyDlg = -1;
         static frmTranslateSettings settingsDialogue;
