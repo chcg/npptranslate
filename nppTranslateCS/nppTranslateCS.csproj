@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>nppTranslateCS</RootNamespace>
-    <AssemblyName>Translate-debug</AssemblyName>
+    <AssemblyName>Translate</AssemblyName>
     <OutputPath>bin\Debug\</OutputPath>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileUpgradeFlags>
@@ -29,7 +29,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DefineConstants>TRACE</DefineConstants>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release</OutputPath>
+    <OutputPath>C:\Program Files %28x86%29\Notepad++\plugins\</OutputPath>
     <DebugType>pdbonly</DebugType>
     <ErrorReport>prompt</ErrorReport>
     <PlatformTarget>x86</PlatformTarget>
@@ -50,7 +50,14 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="TranslateSettings.cs" />
+    <Compile Include="Forms\frmBingCredentials.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\frmBingCredentials.Designer.cs">
+      <DependentUpon>frmBingCredentials.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TranslateSettingsController.cs" />
+    <Compile Include="TranslateSettingsModel.cs" />
     <Compile Include="DllExport\DllExportAttribute.cs" />
     <Compile Include="Forms\frmTranslateSettings.cs">
       <SubType>Form</SubType>
@@ -77,8 +84,13 @@
     <Compile Include="UnmanagedExports.cs" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Forms\frmBingCredentials.resx">
+      <DependentUpon>frmBingCredentials.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\frmTranslateSettings.resx">
       <DependentUpon>frmTranslateSettings.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

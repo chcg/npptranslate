@@ -22,10 +22,13 @@ namespace nppTranslateCS
         internal const string PluginName = "Translate";
 #endif
 
+        static String pluginVersion = "2.1.0.1";
         static string iniFilePath = null;
         static int idMyDlg = -1;
-        static frmTranslateSettings settingsDialogue;
-        static TranslateSettings settings;
+        static frmTranslateSettings dlgTrSettings = new frmTranslateSettings();
+        static frmBingCredentials dlgBingSettings = new frmBingCredentials();
+        static TranslateSettingsModel trSettingsModel = new TranslateSettingsModel();
+        static TranslateSettingsController translateSettingsController;
         static TrOD translateEngine;
 
 
@@ -37,6 +40,7 @@ namespace nppTranslateCS
             if (!Directory.Exists(iniDirectoryFilePath)) Directory.CreateDirectory(iniDirectoryFilePath);
             iniFilePath = Path.Combine(iniDirectoryFilePath, "Translate" + ".ini");
 
+            //It is gaurunteed to have directory created after this
             try
             {
 
@@ -47,15 +51,23 @@ namespace nppTranslateCS
                 }
                 else
                 {
-                    cleanUpOldFile();
+                    //File exists, check for migration from older version
+                    migrateIfRequired();
                 }
+                //Here, It is gaurunteed to have a settings file either crerated or preexisting or migrated(blank)
+                
+                translateSettingsController = new TranslateSettingsController(iniFilePath);
+                translateSettingsController.setBingSettingsForm(dlgBingSettings);
+                translateSettingsController.setTranslateSettingsForm(dlgTrSettings);
+                
 
-                settings = new TranslateSettings(iniFilePath);
+                translateSettingsController.setModel(trSettingsModel);
+                dlgBingSettings.setController(translateSettingsController);
+                dlgTrSettings.setController(translateSettingsController);
 
-                settingsDialogue = new frmTranslateSettings(settings);
+                translateSettingsController.loadModel();
 
-                translateEngine = new TrOD(settings);
-
+                translateEngine = new TrOD(trSettingsModel);
 
             }
             catch (Exception ex)
@@ -75,15 +87,16 @@ namespace nppTranslateCS
             PluginBase.SetCommand(0, "Translate Selected", TranslateText, new ShortcutKey(true, true, false, Keys.Z));
             PluginBase.SetCommand(1, "Translate Selected-Swapped Preference", TranslateText_Reverse, new ShortcutKey(true, true, true, Keys.Z));
             PluginBase.SetCommand(2, "Translate CamelCase/underscore_case", TranslateCodeString, new ShortcutKey(true, true, false, Keys.X));
-            PluginBase.SetCommand(3, "Settings", editConfiguration);
-            PluginBase.SetCommand(4, "About", AboutDlg);
-            PluginBase.SetCommand(5, "Help", LaunchHelp);
-            idMyDlg = 5;
+            PluginBase.SetCommand(3, "BING Credentials", setBINGCredentials); 
+            PluginBase.SetCommand(4, "Settings", setLanguagePreference);
+            PluginBase.SetCommand(5, "About", AboutDlg);
+            PluginBase.SetCommand(6, "Help", LaunchHelp);
+            idMyDlg = 6;
         }
 
         internal static void PluginCleanUp()
         {
-            settings.persistSettings();
+            translateSettingsController.persistModel();
         }
 
         #endregion
@@ -133,13 +146,13 @@ namespace nppTranslateCS
                 if (text.Length == 0)
                     return;
 
-                KeyValuePair<string, string> langPref = readLanguageConfiguration();
+                Pair langPref = getLanguagePreference();
 
                 //readProxySettings();
 
-                String result = translateEngine.Translate(langPref.Key, langPref.Value, text);
+                String result = translateEngine.Translate((string)langPref.First, (string)langPref.Second, text);
 
-                showTranslationResults(langPref.Key, langPref.Value, result);
+                showTranslationResults((string)langPref.First, (string)langPref.Second, result);
 
             }
             catch (Exception ex)
@@ -150,13 +163,25 @@ namespace nppTranslateCS
 
         }
 
-        internal static void editConfiguration()
+        internal static void setBINGCredentials()
         {
             try
             {
-                if (loadInitConfiguration())
+                    dlgBingSettings.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                handleException(ex);
+            }
+        }
+
+        internal static void setLanguagePreference()
+        {
+            try
+            {
+                if (initLanguages())
                 {
-                    settingsDialogue.ShowDialog();
+                    dlgTrSettings.ShowDialog();
                 }
             }
             catch (Exception ex)
@@ -166,39 +191,27 @@ namespace nppTranslateCS
     
         }
 
-        internal static KeyValuePair<string, string> readLanguageConfiguration()
+        internal static Pair getLanguagePreference()
         {
-            try
+            if (initLanguages())
             {
-                if (loadInitConfiguration())
-                {
-                    string from = (string) settings.getLanguagePreference().First;
-                    string to = (string)settings.getLanguagePreference().Second;
-
-                    return new KeyValuePair<string, string>(from, to);
-                }        
-            }
-            catch (Exception ex)
-            {
-                handleException(ex);
-            }
-            return new KeyValuePair<string, string>();
-    
-
+               return trSettingsModel.getLanguagePreference();
+            }        
+            return null;   
         }
 
 
-        internal static Boolean loadInitConfiguration()
+        internal static Boolean initLanguages()
         {
             try
             {
-                if (settings.getAllLanguages().Count == 0)
+                if (trSettingsModel.getAllLanguages().Count == 0)
                 {
                     List<Pair> fetchedList = new List<Pair>();
                     fetchedList.AddRange(translateEngine.GetSupportedLanguages());
-                    settings.setAllLanguages(fetchedList);
-
-                    settings.setLanguagePreference(new Pair("", "en"));
+                    fetchedList.Add(new Pair("AUTO","AUTO"));
+                    trSettingsModel.setAllLanguages(fetchedList);
+                    trSettingsModel.setLanguagePreference(new Pair("AUTO", "en"));
                 }
                 return true;
             }
@@ -213,7 +226,7 @@ namespace nppTranslateCS
 
         internal static void AboutDlg()
         {
-            string aboutText = "Translate Plugin For Notepad++\n\nVersion: 2.0.0.0\nAuthor: Shaleen Mishra\nContact: shaleen.mishra@gmail.com";
+            string aboutText = "Translate Plugin For Notepad++\n\nVersion: " + pluginVersion + "\nAuthor: Shaleen Mishra\nContact: shaleen.mishra@gmail.com";
             MessageBox.Show(System.Windows.Forms.Control.FromHandle(GetCurrentEditHandle()), aboutText, "Translate", MessageBoxButtons.OK);
         }
 
@@ -234,18 +247,18 @@ namespace nppTranslateCS
                 if (text.Length == 0)
                     return;
 
-                KeyValuePair<string, string> langPref = readLanguageConfiguration();
+                Pair langPref = getLanguagePreference();
 
-                if(langPref.Key.Equals(""))
+                if(langPref.First.Equals("AUTO"))
                 {
                     MessageBox.Show(System.Windows.Forms.Control.FromHandle(GetCurrentEditHandle()), "This feature is not available for auto-detect settings!\nChange configuration file to a valid source language code and Retry.", "Translate Error!", MessageBoxButtons.OK);
                     return;
                 }
                 //readProxySettings();
 
-                String result = translateEngine.Translate(langPref.Value, langPref.Key, text);
+                String result = translateEngine.Translate((String)langPref.Second, (string)langPref.First, text);
 
-                showTranslationResults(langPref.Value, langPref.Key, result);
+                showTranslationResults((string)langPref.Second, (string)langPref.First, result);
             }
             catch (Exception ex)
             {
@@ -305,13 +318,13 @@ namespace nppTranslateCS
 
                 string processedText = DecoupleMixedCase(replaceUndescores(selectedText));
 
-                KeyValuePair<string, string> fromTo = readLanguageConfiguration();
+                Pair fromTo = getLanguagePreference();
 
                 //readProxySettings();
 
-                string result = translateEngine.Translate(fromTo.Key, fromTo.Value, processedText);
+                string result = translateEngine.Translate((string)fromTo.First, (string)fromTo.Second, processedText);
 
-                showTranslationResults(fromTo.Key, fromTo.Value, result);
+                showTranslationResults((string)fromTo.First, (string)fromTo.Second, result);
             }
             catch (Exception ex)
             {
@@ -332,7 +345,7 @@ namespace nppTranslateCS
             try
             {
                 StringBuilder transDisplay = new StringBuilder();
-                transDisplay.Append(from.Equals("") ? "[Auto Detect]" : from);
+                transDisplay.Append(from);
                 transDisplay.Append(" ==> ");
                 transDisplay.Append(to);
 
@@ -363,27 +376,42 @@ namespace nppTranslateCS
             {
                 MessageBox.Show("Client ID and Client Secret must be provided in order to use Translate functionality");
                 //MessageBox.Show(e.StackTrace);
-                settingsDialogue.ShowDialog();
+                //settingsDialogue.ShowDialog();
             }
             else
             {
+                MessageBox.Show("Unable to translate. Please check BING credentials and language preference.");
+#if DEBUG
                 MessageBox.Show(e.Message);
-                //MessageBox.Show(e.StackTrace);
+                MessageBox.Show(e.StackTrace);
+#endif
             }
         }
 
-        internal static void cleanUpOldFile()
+        
+        internal static void migrateIfRequired()
         {
-                StringBuilder oldSourceTag = new StringBuilder(255);
-                Win32.GetPrivateProfileString("SOURCE", "code", "", oldSourceTag, 255, iniFilePath);
+            //No direct way to get current Version in < 2.0.0.0, ge it indirectly;
 
-                StringBuilder oldDestTag = new StringBuilder(255);
-                Win32.GetPrivateProfileString("DESTINATION", "code", "", oldDestTag, 255, iniFilePath);
+            String strInstalledVersion = "n/a";
+            StringBuilder installedVersion = new StringBuilder(255);
+            Win32.GetPrivateProfileString("VERSION", "version", "", installedVersion, 255, iniFilePath);
 
-                if(oldSourceTag.Append(oldDestTag).ToString().Length > 1)
-                {
-                    System.IO.File.WriteAllText(iniFilePath, string.Empty);
-                }
+            if(installedVersion.ToString().Length>0)
+            {
+                //Has version infor, i.e. is 2.1 or later
+                strInstalledVersion = installedVersion.ToString();
+            }
+
+#if DEBUG
+            MessageBox.Show("Existing installed version: "+strInstalledVersion);
+#endif
+            if (strInstalledVersion.Equals("n/a"))
+            {
+                System.IO.File.WriteAllText(iniFilePath, string.Empty);
+                Win32.WritePrivateProfileString("VERSION", "version", pluginVersion, iniFilePath);
+
+            }
 
         }
 

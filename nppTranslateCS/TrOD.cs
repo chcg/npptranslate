@@ -17,9 +17,9 @@ namespace nppTranslateCS
 {
     class TrOD
     {
-        private TranslateSettings settings;
+        private TranslateSettingsModel settings;
 
-        public TrOD(TranslateSettings inParam)
+        public TrOD(TranslateSettingsModel inParam)
         {
             settings = inParam;
 
@@ -37,8 +37,6 @@ namespace nppTranslateCS
 
         private string GetAccessToken()
         {
-
-            
 
             AdmAccessToken admToken;
             string headerValue = "";
@@ -73,7 +71,7 @@ namespace nppTranslateCS
             using (OperationContextScope scope = new OperationContextScope(client.InnerChannel))
             {
                 OperationContext.Current.OutgoingMessageProperties[HttpRequestMessageProperty.Name] = PrepareClientForPOST();
-                return client.Translate("", text, from, to, "text/plain", "general");   
+                return client.Translate("", text, from.Equals("AUTO")?"":from, to, "text/plain", "general");   
             }
 
         }
