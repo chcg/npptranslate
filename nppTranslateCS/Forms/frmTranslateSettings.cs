@@ -12,94 +12,89 @@ namespace nppTranslateCS.Forms
 {
     public partial class frmTranslateSettings : Form
     {
-        public TranslateSettings bingSettings;
+        public TranslateSettingsController controller;
  
-        public frmTranslateSettings(TranslateSettings bs)
+        public frmTranslateSettings()
         {
-            bingSettings = bs;
             InitializeComponent();  
+        }
+
+        public void setController(TranslateSettingsController controller)
+        {
+            this.controller = controller;
         }
 
         private void TranslateSettings_FormClosing(object sender, FormClosingEventArgs e)
         {
-            
-            bingSettings.setClientCredentials( new Pair(this.textBox1.Text,this.textBox2.Text) );
-
-            int fromIndex = this.from.SelectedIndex;
-            int toIndex = this.to.SelectedIndex;
-
-            string fromCode = "";
-            string toCode = "en";
-            if(fromIndex > 0)
-            {
-                fromCode = (string) bingSettings.getAllLanguages().ToArray()[fromIndex-1].First;
-            }
-
-            if (toIndex > -1)
-            {
-                toCode = (string)bingSettings.getAllLanguages().ToArray()[toIndex].First;
-            }
-
-            bingSettings.setLanguagePreference(new Pair(fromCode, toCode));
-            
-
+            controller.onClose(this);
             e.Cancel = true;
             this.Hide();
         }
 
-        private void frmBingSettings_Load(object sender, EventArgs e)
+        private void TranslateSettings_Load(object sender, EventArgs e)
         {
-            Pair clientCred = this.bingSettings.getClientCredentials();
-
-            if (clientCred != null)
-            {
-                this.textBox1.Text = (string)clientCred.First;
-                this.textBox2.Text = (string)clientCred.Second;
-            }
-            populateLanguages();
+            controller.onLoad(this);
         }
 
-        private void populateLanguages()
-        {
-            string preferredFrom = (string) bingSettings.getLanguagePreference().First;
-            string preferredTo = (string) bingSettings.getLanguagePreference().Second;
-
-            int fromIndex = 0, toIndex = -1;
-
-            int i = 0;
-
-            foreach (Pair codeNamePair in bingSettings.getAllLanguages())
-            {
-                this.from.Items.Add(codeNamePair.Second);
-                this.to.Items.Add(codeNamePair.Second);
-
-                if (fromIndex == 0)
-                {
-                    if(codeNamePair.First.Equals(preferredFrom))
-                        fromIndex = i+1;
-                }
-
-                if (toIndex == -1)
-                {
-                    if(codeNamePair.First.Equals(preferredTo))
-                        toIndex = i;
-                }
-
-                i++;
-            }
-
-            this.from.SelectedIndex = fromIndex;
-            this.to.SelectedIndex = toIndex;
-        }
 
         private void button1_Click(object sender, EventArgs e)
         {
             this.Close();
         }
 
-        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        
+        public void addFromLanguage(String lang)
         {
-            System.Diagnostics.Process.Start("IExplore.exe", e.Link.LinkData as string); 
+            this.from.Items.Add(lang);
+            
+        }
+
+        public void addToLanguage(String lang)
+        {
+            if (lang.Equals("AUTO"))
+                return;
+            this.to.Items.Add(lang);
+        }
+
+        public Pair getPreferredLanguages()
+        {
+            if ((from.SelectedIndex + to.SelectedIndex) >= 0)//both are properly selected
+                return new Pair(from.SelectedItem.ToString(), to.SelectedItem.ToString());
+            else
+                return new Pair();
+
+        }
+
+        public void setPreferredLanguages(Pair fromTo)
+        {
+            int fromIndex = -1, toIndex = -1;
+
+            int i = 0;
+
+            foreach (String fromLanguage in this.from.Items)
+            {
+                if ((fromIndex < 0) && (fromLanguage.Equals(fromTo.First)))
+                {
+                    fromIndex = i;
+                    break;
+                }
+                i++;
+            }
+
+            i = 0;
+
+            foreach (String toLanguage in this.to.Items)
+            {
+                if ((toIndex < 0) && (toLanguage.Equals(fromTo.Second)))
+                {
+                    toIndex = i;
+                    break;
+                }
+                i++;
+            }
+
+            this.from.SelectedIndex = fromIndex;
+            this.to.SelectedIndex = toIndex;
         }
     }
 }
