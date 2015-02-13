@@ -10,6 +10,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using nppTranslateCS.Forms;
 using System.Web.UI;
+using Microsoft.VisualBasic.Logging;
+using System.Reflection;
+using System.Globalization;
+using System.Threading;
 
 namespace nppTranslateCS
 {
@@ -22,8 +26,10 @@ namespace nppTranslateCS
         internal const string PluginName = "Translate";
 #endif
 
-        static String pluginVersion = "2.1.0.1";
+        static String pluginVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
         static string iniFilePath = null;
+        static string logDirectoryPath = null;
+        //static string logFilePath = null;
         static int idMyDlg = -1;
         static frmTranslateSettings dlgTrSettings = new frmTranslateSettings();
         static frmBingCredentials dlgBingSettings = new frmBingCredentials();
@@ -34,15 +40,28 @@ namespace nppTranslateCS
 
         static Main()
         {
+
             StringBuilder sbIniFilePath = new StringBuilder(Win32.MAX_PATH);
             Win32.SendMessage(PluginBase.nppData._nppHandle, NppMsg.NPPM_GETPLUGINSCONFIGDIR, Win32.MAX_PATH, sbIniFilePath);
             String iniDirectoryFilePath = Path.Combine(sbIniFilePath.ToString(), PluginName);
             if (!Directory.Exists(iniDirectoryFilePath)) Directory.CreateDirectory(iniDirectoryFilePath);
             iniFilePath = Path.Combine(iniDirectoryFilePath, "Translate" + ".ini");
 
+            //Create directory for logging if not exisits
+            
+            String[] configPathArray = iniDirectoryFilePath.Split(new char[]{'\\'});
+            configPathArray.SetValue("logs", configPathArray.Length - 2);//change ...config/translate => logs/translate
+            logDirectoryPath = String.Join("\\", configPathArray);
+
+            if (!Directory.Exists(logDirectoryPath)) Directory.CreateDirectory(logDirectoryPath);
+            //logFilePath = Path.Combine(logDirectoryPath, "Translate" + ".log");
+
+            
+
             //It is gaurunteed to have directory created after this
             try
             {
+                initializeTraceListner();
 
                 if (!File.Exists(iniFilePath))
                 {
@@ -68,14 +87,84 @@ namespace nppTranslateCS
                 translateSettingsController.loadModel();
 
                 translateEngine = new TrOD(trSettingsModel);
+                writeLog("Translate plugin (Version: " + pluginVersion + ") initialized.");
+                logSystemInfo();
 
             }
             catch (Exception ex)
             {
                 handleException(ex);
             }
+
+            
         }
 
+        private static void logSystemInfo()
+        {
+            bool is64BitProcess = (IntPtr.Size == 8);
+            bool is64BitOperatingSystem = is64BitProcess || InternalCheckIsWow64();
+
+            writeLog("OSVersion: " + Environment.OSVersion.ToString());
+            writeLog("Is64Bit: " + is64BitOperatingSystem.ToString());
+
+            writeLog("Default Language Info:");
+            logCultureInfo(CultureInfo.InstalledUICulture);
+            writeLog("Current Culture Info:");
+            logCultureInfo(Thread.CurrentThread.CurrentCulture);
+
+            
+        }
+
+        private static void logCultureInfo(CultureInfo ci)
+        {
+            writeLog(String.Format(" * Name: {0}", ci.Name));
+            writeLog(String.Format(" * Display Name: {0}", ci.DisplayName));
+            writeLog(String.Format(" * English Name: {0}", ci.EnglishName));
+            writeLog(String.Format(" * 2-letter ISO Name: {0}", ci.TwoLetterISOLanguageName));
+            writeLog(String.Format(" * 3-letter ISO Name: {0}", ci.ThreeLetterISOLanguageName));
+            writeLog(String.Format(" * 3-letter Win32 API Name: {0}", ci.ThreeLetterWindowsLanguageName));
+        }
+
+        private static void logEncodingInfo()
+        {
+            StringBuilder bufferEncoding = new StringBuilder();
+            Win32.SendMessage(PluginBase.nppData._nppHandle, NppMsg.NPPM_GETBUFFERENCODING, Win32.MAX_PATH, bufferEncoding);
+
+            StringBuilder currentNativeLangEncoding = new StringBuilder();
+            Win32.SendMessage(PluginBase.nppData._nppHandle, NppMsg.NPPM_GETCURRENTNATIVELANGENCODING, Win32.MAX_PATH, currentNativeLangEncoding);
+
+            writeLog("bufferEncoding: " + bufferEncoding.ToString());
+            writeLog("currentNativeLangEncoding: " + currentNativeLangEncoding.ToString());
+
+        }
+
+        [DllImport("kernel32.dll", SetLastError = true, CallingConvention = CallingConvention.Winapi)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool IsWow64Process(
+            [In] IntPtr hProcess,
+            [Out] out bool wow64Process
+        );
+
+        internal static bool InternalCheckIsWow64()
+        {
+            if ((Environment.OSVersion.Version.Major == 5 && Environment.OSVersion.Version.Minor >= 1) ||
+                Environment.OSVersion.Version.Major >= 6)
+            {
+                using (Process p = Process.GetCurrentProcess())
+                {
+                    bool retVal;
+                    if (!IsWow64Process(p.Handle, out retVal))
+                    {
+                        return false;
+                    }
+                    return retVal;
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
         
 
         #endregion
@@ -97,6 +186,7 @@ namespace nppTranslateCS
         internal static void PluginCleanUp()
         {
             translateSettingsController.persistModel();
+            writeLog("Translate plugin cleaned up");
         }
 
         #endregion
@@ -109,8 +199,21 @@ namespace nppTranslateCS
         }
 
 
+        internal static void BEGINFUN(String txt)
+        {
+            writeLog("BEGIN -- " + txt);
+        }
+
+        internal static void ENDFUN(String txt)
+        {
+            writeLog("END -- " + txt);
+        }
+
+
         internal static String getSelectedText()
         {
+            BEGINFUN("getSelectedText");
+
             try
             {
                 IntPtr editHandle = GetCurrentEditHandle();
@@ -123,9 +226,22 @@ namespace nppTranslateCS
                 Win32.SendMessage(editHandle, SciMsg.SCI_GETTEXTRANGE, 0, tr.NativePointer);
 
                 string selected = tr.lpstrText;
+                if (selected.Length < 1)
+                {
+                    return "";
+                }
+
+                writeLog("Selected text range: " + selected);
+
+                logEncodingInfo();
 
                 Encoding w1252 = Encoding.GetEncoding(1252);
                 string converted = Encoding.UTF8.GetString(w1252.GetBytes(selected));
+
+                writeLog("Final selected text after conversion: " + converted);
+
+                ENDFUN("getSelectedText");
+
                 return converted;
 
             }
@@ -134,11 +250,15 @@ namespace nppTranslateCS
                 handleException(ex);
                 return "";
             }
+
+            
         }
 
 
         internal static void TranslateText()
         {
+            BEGINFUN("TranslateText");
+
             try
             {
                 string text = getSelectedText();
@@ -154,12 +274,15 @@ namespace nppTranslateCS
 
                 showTranslationResults((string)langPref.First, (string)langPref.Second, result);
 
+
             }
             catch (Exception ex)
             {
                 handleException(ex);
                 return ;
             }
+
+            ENDFUN("TranslateText");
 
         }
 
@@ -342,6 +465,8 @@ namespace nppTranslateCS
 
         internal static void showTranslationResults(string from, string to, string transResult)
         {
+            BEGINFUN("showTranslationResults");
+
             try
             {
                 StringBuilder transDisplay = new StringBuilder();
@@ -368,6 +493,7 @@ namespace nppTranslateCS
             {
                 handleException(ex);
             }
+            ENDFUN("showTranslationResults");
         }
 
         internal static void handleException(Exception e) 
@@ -391,6 +517,8 @@ namespace nppTranslateCS
         
         internal static void migrateIfRequired()
         {
+            BEGINFUN("migrateIfRequired");
+
             //No direct way to get current Version in < 2.0.0.0, ge it indirectly;
 
             String strInstalledVersion = "n/a";
@@ -399,20 +527,44 @@ namespace nppTranslateCS
 
             if(installedVersion.ToString().Length>0)
             {
+                writeLog("Installed version (" + installedVersion.ToString() + ") is 2.1 or later, doing nothing");
                 //Has version infor, i.e. is 2.1 or later
                 strInstalledVersion = installedVersion.ToString();
             }
 
 #if DEBUG
-            MessageBox.Show("Existing installed version: "+strInstalledVersion);
+            //MessageBox.Show("Existing installed version: "+strInstalledVersion);
 #endif
             if (strInstalledVersion.Equals("n/a"))
             {
+                writeLog("No version info available, i.e. Legacy installation, creating a new config file..");
                 System.IO.File.WriteAllText(iniFilePath, string.Empty);
                 Win32.WritePrivateProfileString("VERSION", "version", pluginVersion, iniFilePath);
 
             }
 
+            ENDFUN("migrateIfRequired");
+        }
+
+        internal static void initializeTraceListner()
+        {
+            FileLogTraceListener listner = new FileLogTraceListener();
+            listner.BaseFileName = "Translate.log";
+            listner.TraceOutputOptions = TraceOptions.DateTime;
+            listner.DiskSpaceExhaustedBehavior = DiskSpaceExhaustedOption.ThrowException;
+            listner.Location= LogFileLocation.Custom;
+            listner.CustomLocation = logDirectoryPath;
+           //.listner.MaxFileSize = 1024;
+            listner.LogFileCreationSchedule = LogFileCreationScheduleOption.Daily;
+            listner.AutoFlush = true;
+
+            Trace.Listeners.Add(listner);
+            
+        }
+
+        internal static void writeLog(String text)
+        {
+            Trace.TraceInformation(text);
         }
 
     }

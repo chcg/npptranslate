@@ -68,7 +68,10 @@ namespace nppTranslateCS.Forms
 #if DEBUG
             MessageBox.Show(link);
 #endif
-            System.Diagnostics.Process.Start("IExplore.exe", link); 
+            //System.Diagnostics.Process.Start("IExplore.exe", link); 
+            //TODO fix perm why above does not work.
+
+            System.Diagnostics.Process.Start("IExplore.exe", "http://blogs.msdn.com/b/translation/p/gettingstarted1.aspx");
         
         }
     }

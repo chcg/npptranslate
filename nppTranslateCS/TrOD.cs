@@ -62,7 +62,10 @@ namespace nppTranslateCS
 
         public string Translate(string from, string to, string text)
         {
-            //MessageBox.Show("fetching translation");
+            Main.writeLog("Fetching translation with translation params: ");
+            Main.writeLog(" * from: " + from);
+            Main.writeLog(" * to: " + to);
+            Main.writeLog(" * text: " + text);
 
             BingTranslate.LanguageServiceClient client = CreateWebServiceInstance();
 
@@ -71,14 +74,15 @@ namespace nppTranslateCS
             using (OperationContextScope scope = new OperationContextScope(client.InnerChannel))
             {
                 OperationContext.Current.OutgoingMessageProperties[HttpRequestMessageProperty.Name] = PrepareClientForPOST();
-                return client.Translate("", text, from.Equals("AUTO")?"":from, to, "text/plain", "general");   
+                String result = client.Translate("", text, from.Equals("AUTO")?"":from, to, "text/plain", "general");   
+                Main.writeLog("Returning translation result: "+ result);
+                return result;
             }
-
         }
 
         public List<Pair> GetSupportedLanguages()
         {
-            //MessageBox.Show("fetching languages");
+            Main.writeLog("Fetching languages...");
 
             BingTranslate.LanguageServiceClient client = CreateWebServiceInstance();
 
