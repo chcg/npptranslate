@@ -62,6 +62,7 @@ namespace nppTranslateCS
             try
             {
                 initializeTraceListner();
+                writeLog("################ Translate plugin (Version: " + pluginVersion + ") initializing...");
 
                 if (!File.Exists(iniFilePath))
                 {
@@ -87,7 +88,7 @@ namespace nppTranslateCS
                 translateSettingsController.loadModel();
 
                 translateEngine = new TrOD(trSettingsModel);
-                writeLog("Translate plugin (Version: " + pluginVersion + ") initialized.");
+                
                 logSystemInfo();
 
             }
@@ -185,8 +186,8 @@ namespace nppTranslateCS
 
         internal static void PluginCleanUp()
         {
+            writeLog("################ Translate plugin cleaning up"); 
             translateSettingsController.persistModel();
-            writeLog("Translate plugin cleaned up");
         }
 
         #endregion
