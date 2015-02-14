@@ -21,7 +21,7 @@ namespace nppTranslateCS
     {
         #region " Fields "
 #if DEBUG
-        internal const string PluginName = "TranslateCSDebug";
+        internal const string PluginName = "Translate-Debug";
 #else
         internal const string PluginName = "Translate";
 #endif
@@ -45,7 +45,7 @@ namespace nppTranslateCS
             Win32.SendMessage(PluginBase.nppData._nppHandle, NppMsg.NPPM_GETPLUGINSCONFIGDIR, Win32.MAX_PATH, sbIniFilePath);
             String iniDirectoryFilePath = Path.Combine(sbIniFilePath.ToString(), PluginName);
             if (!Directory.Exists(iniDirectoryFilePath)) Directory.CreateDirectory(iniDirectoryFilePath);
-            iniFilePath = Path.Combine(iniDirectoryFilePath, "Translate" + ".ini");
+            iniFilePath = Path.Combine(iniDirectoryFilePath, PluginName + ".ini");
 
             //Create directory for logging if not exisits
             
@@ -88,9 +88,8 @@ namespace nppTranslateCS
                 translateSettingsController.loadModel();
 
                 translateEngine = new TrOD(trSettingsModel);
-                
-                logSystemInfo();
 
+                logSystemInfo();
             }
             catch (Exception ex)
             {
@@ -107,13 +106,12 @@ namespace nppTranslateCS
 
             writeLog("OSVersion: " + Environment.OSVersion.ToString());
             writeLog("Is64Bit: " + is64BitOperatingSystem.ToString());
+            writeLog(".NET (CLR) Version: " + Environment.Version.ToString());
 
             writeLog("Default Language Info:");
             logCultureInfo(CultureInfo.InstalledUICulture);
             writeLog("Current Culture Info:");
             logCultureInfo(Thread.CurrentThread.CurrentCulture);
-
-            
         }
 
         private static void logCultureInfo(CultureInfo ci)
@@ -136,7 +134,6 @@ namespace nppTranslateCS
 
             writeLog("bufferEncoding: " + bufferEncoding.ToString());
             writeLog("currentNativeLangEncoding: " + currentNativeLangEncoding.ToString());
-
         }
 
         [DllImport("kernel32.dll", SetLastError = true, CallingConvention = CallingConvention.Winapi)]
@@ -173,7 +170,6 @@ namespace nppTranslateCS
         #region " StartUp/CleanUp "
         internal static void CommandMenuInit()
         {
-            
             PluginBase.SetCommand(0, "Translate Selected", TranslateText, new ShortcutKey(true, true, false, Keys.Z));
             PluginBase.SetCommand(1, "Translate Selected-Swapped Preference", TranslateText_Reverse, new ShortcutKey(true, true, true, Keys.Z));
             PluginBase.SetCommand(2, "Translate CamelCase/underscore_case", TranslateCodeString, new ShortcutKey(true, true, false, Keys.X));
@@ -251,15 +247,12 @@ namespace nppTranslateCS
                 handleException(ex);
                 return "";
             }
-
-            
         }
 
 
         internal static void TranslateText()
         {
             BEGINFUN("TranslateText");
-
             try
             {
                 string text = getSelectedText();
@@ -274,15 +267,12 @@ namespace nppTranslateCS
                 String result = translateEngine.Translate((string)langPref.First, (string)langPref.Second, text);
 
                 showTranslationResults((string)langPref.First, (string)langPref.Second, result);
-
-
             }
             catch (Exception ex)
             {
                 handleException(ex);
                 return ;
             }
-
             ENDFUN("TranslateText");
 
         }
@@ -312,7 +302,6 @@ namespace nppTranslateCS
             {
                 handleException(ex);
             }
-    
         }
 
         internal static Pair getLanguagePreference()
@@ -344,14 +333,13 @@ namespace nppTranslateCS
                 handleException(ex);
                 return false;
             }
-    
         }
 
 
         internal static void AboutDlg()
         {
             string aboutText = "Translate Plugin For Notepad++\n\nVersion: " + pluginVersion + "\nAuthor: Shaleen Mishra\nContact: shaleen.mishra@gmail.com";
-            MessageBox.Show(System.Windows.Forms.Control.FromHandle(GetCurrentEditHandle()), aboutText, "Translate", MessageBoxButtons.OK);
+            MessageBox.Show(System.Windows.Forms.Control.FromHandle(GetCurrentEditHandle()), aboutText, PluginName, MessageBoxButtons.OK);
         }
 
 
@@ -375,7 +363,7 @@ namespace nppTranslateCS
 
                 if(langPref.First.Equals("AUTO"))
                 {
-                    MessageBox.Show(System.Windows.Forms.Control.FromHandle(GetCurrentEditHandle()), "This feature is not available for auto-detect settings!\nChange configuration file to a valid source language code and Retry.", "Translate Error!", MessageBoxButtons.OK);
+                    MessageBox.Show(System.Windows.Forms.Control.FromHandle(GetCurrentEditHandle()), "This feature is not available for auto-detect settings!\nChange configuration file to a valid source language code and Retry.", PluginName, MessageBoxButtons.OK);
                     return;
                 }
                 //readProxySettings();
@@ -389,8 +377,6 @@ namespace nppTranslateCS
                 handleException(ex);
                 return;
             }
-
-
         }
 
         internal static string DecoupleMixedCase(string inStr)
@@ -483,7 +469,7 @@ namespace nppTranslateCS
 
                 transDisplay.Append("Do you want to copy translated text to clipboard?\n");
 
-                DialogResult selection = MessageBox.Show(System.Windows.Forms.Control.FromHandle(GetCurrentEditHandle()), transDisplay.ToString(), "Translate", MessageBoxButtons.YesNo);
+                DialogResult selection = MessageBox.Show(System.Windows.Forms.Control.FromHandle(GetCurrentEditHandle()), transDisplay.ToString(), PluginName, MessageBoxButtons.YesNo);
                 if (selection.Equals(DialogResult.Yes))
                 {
                     CopyTranslatedTextDataToClipBoard(transResult);
@@ -531,6 +517,8 @@ namespace nppTranslateCS
                 writeLog("Installed version (" + installedVersion.ToString() + ") is 2.1 or later, doing nothing");
                 //Has version infor, i.e. is 2.1 or later
                 strInstalledVersion = installedVersion.ToString();
+                //upgrade the version
+                Win32.WritePrivateProfileString("VERSION", "version", pluginVersion, iniFilePath);
             }
 
 #if DEBUG
@@ -550,12 +538,12 @@ namespace nppTranslateCS
         internal static void initializeTraceListner()
         {
             FileLogTraceListener listner = new FileLogTraceListener();
-            listner.BaseFileName = "Translate.log";
+            listner.BaseFileName = PluginName + ".log";
             listner.TraceOutputOptions = TraceOptions.DateTime;
             listner.DiskSpaceExhaustedBehavior = DiskSpaceExhaustedOption.ThrowException;
             listner.Location= LogFileLocation.Custom;
             listner.CustomLocation = logDirectoryPath;
-           //.listner.MaxFileSize = 1024;
+            //listner.MaxFileSize = 1024;
             listner.LogFileCreationSchedule = LogFileCreationScheduleOption.Daily;
             listner.AutoFlush = true;
 
