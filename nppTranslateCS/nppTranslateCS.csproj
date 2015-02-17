@@ -57,6 +57,8 @@
     <Compile Include="Forms\frmBingCredentials.Designer.cs">
       <DependentUpon>frmBingCredentials.cs</DependentUpon>
     </Compile>
+    <Compile Include="MyMemoryResponseModel.cs" />
+    <Compile Include="ITranslateEngine.cs" />
     <Compile Include="TranslateSettingsController.cs" />
     <Compile Include="TranslateSettingsModel.cs" />
     <Compile Include="DllExport\DllExportAttribute.cs" />
@@ -81,6 +83,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
+    <Compile Include="MyMemoryTranslateEngine.cs" />
+    <Compile Include="BINGTranslateEngine.cs" />
     <Compile Include="TrOD.cs" />
     <Compile Include="UnmanagedExports.cs" />
   </ItemGroup>

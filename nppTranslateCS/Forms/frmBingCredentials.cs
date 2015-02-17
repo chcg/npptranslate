@@ -74,5 +74,72 @@ namespace nppTranslateCS.Forms
             System.Diagnostics.Process.Start("IExplore.exe", "http://blogs.msdn.com/b/translation/p/gettingstarted1.aspx");
         
         }
+
+        private void radioButton1_CheckedChanged(object sender, EventArgs e)
+        {
+            if(radioButton1.Checked)
+            {
+                //controller.updateEngine(TranslateSettingsModel.Engine.MYMEMORY);
+                this.groupBoxMyMemory.Visible = true;
+                this.groupBoxBINGSettings.Visible = false;
+            }
+            
+        }
+
+        private void radioButton2_CheckedChanged(object sender, EventArgs e)
+        {
+            if (radioButton2.Checked)
+            {
+                //controller.updateEngine(TranslateSettingsModel.Engine.BING);
+                this.groupBoxMyMemory.Visible = false;
+                this.groupBoxBINGSettings.Visible = true;
+            }
+        }
+
+        public int getSelectedEngineIndex()
+        {
+            if(this.radioButton1.Checked)
+            {
+                return 0;
+            }
+            else if(this.radioButton2.Checked)
+            {
+                return 1;
+            }
+            return 0;
+        }
+
+        public void setEngineSelection(int index)
+        {
+            switch(index)
+            {
+                case 0:
+                    radioButton1.Checked = true;
+                    break;
+                case 1:
+                    radioButton2.Checked = true;
+                    break;
+            }
+        }
+
+        private void linkLabel2_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            String link = e.Link.LinkData as string;
+
+            //System.Diagnostics.Process.Start("IExplore.exe", link); 
+            //TODO fix perm why above does not work.
+
+            System.Diagnostics.Process.Start("IExplore.exe", "http://mymemory.translated.net/doc/spec.php");
+        }
+
+        public String getEmail()
+        {
+            return this.textBoxEmail.Text;
+        }
+
+        public void setEmail(String email)
+        {
+            this.textBoxEmail.Text = email;
+        }
     }
 }

@@ -39,6 +39,24 @@ namespace nppTranslateCS
 
         public void loadModel()
         {
+            StringBuilder engine = new StringBuilder(255);
+            Win32.GetPrivateProfileString("ENGINE", "engine", "", engine, 255, dataSourcePath);
+
+            if(engine.ToString().Equals("BING"))
+            {
+                model.setEngine(TranslateSettingsModel.Engine.BING);
+
+            }
+            else
+            {
+                model.setEngine(TranslateSettingsModel.Engine.MYMEMORY);
+            }
+
+            StringBuilder email = new StringBuilder(255);
+            Win32.GetPrivateProfileString("MYMEMORY", "email", "", email, 255, dataSourcePath);
+
+            model.email = email.ToString();
+
             StringBuilder clientCred = new StringBuilder(255);
             Win32.GetPrivateProfileString("BING", "ClientIDAndSecret", "", clientCred, 255, dataSourcePath);
             
@@ -79,6 +97,17 @@ namespace nppTranslateCS
 
         public void persistModel()
         {
+
+            String engine = "MYMEMORY";
+            if(model.getEngine().Equals(TranslateSettingsModel.Engine.BING))
+            {
+                engine = "BING";
+            }
+
+            Win32.WritePrivateProfileString("ENGINE", "engine", engine, dataSourcePath);
+
+            Win32.WritePrivateProfileString("MYMEMORY", "email", model.email, dataSourcePath);
+
             Win32.WritePrivateProfileString("BING", "ClientIDAndSecret", model.getClientCredentials().First + ";" + model.getClientCredentials().Second, dataSourcePath);
 
             List<string> writableStringList = new List<string>();
@@ -115,6 +144,18 @@ namespace nppTranslateCS
         private void updateModel(frmBingCredentials frm)
         {
             this.model.setClientCredentials(new Pair(frm.getBINGClientID(), frm.getBINGClientSecret()));
+            
+            int selectedEngineIndex = frm.getSelectedEngineIndex();
+            switch (selectedEngineIndex)
+            {
+                case 0:
+                    model.setEngine(TranslateSettingsModel.Engine.MYMEMORY);
+                    break;
+                case 1:
+                    model.setEngine(TranslateSettingsModel.Engine.BING);
+                    break;
+            }
+            model.email = frm.getEmail();
 
         }
 
@@ -127,6 +168,7 @@ namespace nppTranslateCS
 
         private void populateBINGCredentials()
         {
+            
             this.frmBingSettings.setBINGClientID((string)this.model.getClientCredentials().First);
             this.frmBingSettings.setBINGClientSecret((string)this.model.getClientCredentials().Second);
         }
@@ -145,6 +187,18 @@ namespace nppTranslateCS
 
         private void updateView(frmBingCredentials frm)
         {
+            switch (model.getEngine())
+            {
+                case TranslateSettingsModel.Engine.MYMEMORY:
+                    this.frmBingSettings.setEngineSelection(0);
+                    break;
+                case TranslateSettingsModel.Engine.BING:
+                    this.frmBingSettings.setEngineSelection(1);
+                    break;
+
+            }
+            frm.setEmail(model.email);
+
             populateBINGCredentials();
         }
 
@@ -182,5 +236,10 @@ namespace nppTranslateCS
         }
 
 
+
+        internal void updateEngine(TranslateSettingsModel.Engine engine)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

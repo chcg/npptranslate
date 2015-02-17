@@ -40,6 +40,7 @@ namespace nppTranslateCS
 
         static Main()
         {
+            //Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.CreateSpecificCulture("de-AT");
 
             StringBuilder sbIniFilePath = new StringBuilder(Win32.MAX_PATH);
             Win32.SendMessage(PluginBase.nppData._nppHandle, NppMsg.NPPM_GETPLUGINSCONFIGDIR, Win32.MAX_PATH, sbIniFilePath);
@@ -173,8 +174,8 @@ namespace nppTranslateCS
             PluginBase.SetCommand(0, "Translate Selected", TranslateText, new ShortcutKey(true, true, false, Keys.Z));
             PluginBase.SetCommand(1, "Translate Selected-Swapped Preference", TranslateText_Reverse, new ShortcutKey(true, true, true, Keys.Z));
             PluginBase.SetCommand(2, "Translate CamelCase/underscore_case", TranslateCodeString, new ShortcutKey(true, true, false, Keys.X));
-            PluginBase.SetCommand(3, "BING Credentials", setBINGCredentials); 
-            PluginBase.SetCommand(4, "Settings", setLanguagePreference);
+            PluginBase.SetCommand(3, "Translate Engine Settings", setBINGCredentials); 
+            PluginBase.SetCommand(4, "Language Settings", setLanguagePreference);
             PluginBase.SetCommand(5, "About", AboutDlg);
             PluginBase.SetCommand(6, "Help", LaunchHelp);
             idMyDlg = 6;
@@ -469,7 +470,7 @@ namespace nppTranslateCS
 
                 transDisplay.Append("Do you want to copy translated text to clipboard?\n");
 
-                DialogResult selection = MessageBox.Show(System.Windows.Forms.Control.FromHandle(GetCurrentEditHandle()), transDisplay.ToString(), PluginName, MessageBoxButtons.YesNo);
+                DialogResult selection = MessageBox.Show(System.Windows.Forms.Control.FromHandle(GetCurrentEditHandle()), transDisplay.ToString(), "Translation Result, powered by " + trSettingsModel.getEngine().ToString(), MessageBoxButtons.YesNo);
                 if (selection.Equals(DialogResult.Yes))
                 {
                     CopyTranslatedTextDataToClipBoard(transResult);
@@ -485,20 +486,23 @@ namespace nppTranslateCS
 
         internal static void handleException(Exception e) 
         {
+            String message = "Unknown Error";
+
             if (e.GetType().Equals(typeof(BINGClientCredentialException)))
             {
-                MessageBox.Show("Client ID and Client Secret must be provided in order to use Translate functionality");
-                //MessageBox.Show(e.StackTrace);
-                //settingsDialogue.ShowDialog();
+                message  = "Client ID and Client Secret must be provided in order to use Translate functionality" ;
+                
             }
             else
             {
-                MessageBox.Show("Unable to translate. Please check BING credentials and language preference.");
-#if DEBUG
-                MessageBox.Show(e.Message);
-                MessageBox.Show(e.StackTrace);
-#endif
+                message = "Unable to translate. Please check Engine settings and language preference.";
             }
+
+            writeLog(message);
+            writeLog(e.Message);
+            writeLog(e.StackTrace);
+            MessageBox.Show(message);
+
         }
 
         
@@ -508,31 +512,60 @@ namespace nppTranslateCS
 
             //No direct way to get current Version in < 2.0.0.0, ge it indirectly;
 
-            String strInstalledVersion = "n/a";
+            String strInstalledVersion = "0.4.0.0"; //default if not known
+
             StringBuilder installedVersion = new StringBuilder(255);
             Win32.GetPrivateProfileString("VERSION", "version", "", installedVersion, 255, iniFilePath);
 
             if(installedVersion.ToString().Length>0)
             {
-                writeLog("Installed version (" + installedVersion.ToString() + ") is 2.1 or later, doing nothing");
-                //Has version infor, i.e. is 2.1 or later
                 strInstalledVersion = installedVersion.ToString();
-                //upgrade the version
-                Win32.WritePrivateProfileString("VERSION", "version", pluginVersion, iniFilePath);
             }
+            writeLog("Installed version (" + installedVersion.ToString() + ") ");
 
 #if DEBUG
             //MessageBox.Show("Existing installed version: "+strInstalledVersion);
 #endif
-            if (strInstalledVersion.Equals("n/a"))
-            {
-                writeLog("No version info available, i.e. Legacy installation, creating a new config file..");
-                System.IO.File.WriteAllText(iniFilePath, string.Empty);
-                Win32.WritePrivateProfileString("VERSION", "version", pluginVersion, iniFilePath);
-
-            }
+            executeMigrationPath(strInstalledVersion);
 
             ENDFUN("migrateIfRequired");
+        }
+
+        internal static void executeMigrationPath(String versionStr)
+        {
+            Version installedVersion = new Version(versionStr);
+            Version currentVersion = new Version(pluginVersion);
+            Version version_2_1_0_0 = new Version("2.1.0.0");
+            Version version_3_0_0_0 = new Version("3.0.0.0");
+
+            if( installedVersion < version_2_1_0_0)
+            {
+                migrateLegacyTo2_1_0();
+            }
+
+            if (installedVersion < version_3_0_0_0)
+            {
+                migrate2_1_0_0To3_0_0_0();
+            }
+
+            updateVersion();
+
+        }
+
+        private static void updateVersion()
+        {
+            Win32.WritePrivateProfileString("VERSION", "version", pluginVersion, iniFilePath);
+        }
+
+        private static void migrate2_1_0_0To3_0_0_0()
+        {
+            Win32.WritePrivateProfileString("ENGINE", "engine", "MYMEMORY", iniFilePath);
+            Win32.WritePrivateProfileString("MYMEMORY", "email", "", iniFilePath);
+        }
+
+        internal static void migrateLegacyTo2_1_0()
+        {      
+            System.IO.File.WriteAllText(iniFilePath, string.Empty);
         }
 
         internal static void initializeTraceListner()
