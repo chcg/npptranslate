@@ -71,7 +71,7 @@ namespace nppTranslateCS.Forms
             //System.Diagnostics.Process.Start("IExplore.exe", link); 
             //TODO fix perm why above does not work.
 
-            System.Diagnostics.Process.Start("IExplore.exe", "http://blogs.msdn.com/b/translation/p/gettingstarted1.aspx");
+            System.Diagnostics.Process.Start("http://blogs.msdn.com/b/translation/p/gettingstarted1.aspx");
         
         }
 
@@ -129,7 +129,7 @@ namespace nppTranslateCS.Forms
             //System.Diagnostics.Process.Start("IExplore.exe", link); 
             //TODO fix perm why above does not work.
 
-            System.Diagnostics.Process.Start("IExplore.exe", "http://mymemory.translated.net/doc/spec.php");
+            System.Diagnostics.Process.Start("http://mymemory.translated.net/doc/spec.php");
         }
 
         public String getEmail()

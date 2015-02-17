@@ -24,6 +24,11 @@ namespace nppTranslateCS
             this.settings = settings;
         }
 
+        public Pair getDefaultLanguagePreference()
+        {
+            return new Pair("","");
+        }
+
         public string Translate(string from, string to, string text)
         {
             String myMemoryBaseUrl = "http://api.mymemory.translated.net/get?";
@@ -46,8 +51,7 @@ namespace nppTranslateCS
             }
             else
             {
-                //TODO do something else also here
-                return response.responseData.translatedText;
+                throw new Exception(response.responseData.translatedText);
             }
         }
 

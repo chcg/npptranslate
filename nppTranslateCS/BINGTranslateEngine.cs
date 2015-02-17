@@ -25,6 +25,11 @@ namespace nppTranslateCS
 
         }
 
+        public Pair getDefaultLanguagePreference()
+        {
+            return new Pair("AUTO","en");
+        }
+
         private void validateClientCredentials()
         {
             Pair cc  = settings.getClientCredentials();
@@ -113,6 +118,7 @@ namespace nppTranslateCS
             {
                 langList.Add(new Pair(languageCodes[i], languageNames[i]));
             }
+            langList.Add(new Pair("AUTO", "AUTO"));
             return langList;
         }
 

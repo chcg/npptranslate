@@ -56,6 +56,13 @@ namespace nppTranslateCS.Forms
             this.to.Items.Add(lang);
         }
 
+        public void clearLanguages()
+        {
+            this.from.Items.Clear();
+            this.to.Items.Clear();
+        }
+
+
         public Pair getPreferredLanguages()
         {
             if ((from.SelectedIndex + to.SelectedIndex) >= 0)//both are properly selected

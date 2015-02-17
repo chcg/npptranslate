@@ -57,6 +57,7 @@
     <Compile Include="Forms\frmBingCredentials.Designer.cs">
       <DependentUpon>frmBingCredentials.cs</DependentUpon>
     </Compile>
+    <Compile Include="InvalidLanguagePreferenceException.cs" />
     <Compile Include="MyMemoryResponseModel.cs" />
     <Compile Include="ITranslateEngine.cs" />
     <Compile Include="TranslateSettingsController.cs" />
@@ -87,6 +88,7 @@
     <Compile Include="BINGTranslateEngine.cs" />
     <Compile Include="TrOD.cs" />
     <Compile Include="UnmanagedExports.cs" />
+    <Compile Include="Util.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Forms\frmBingCredentials.resx">

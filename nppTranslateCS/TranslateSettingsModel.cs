@@ -13,9 +13,9 @@ namespace nppTranslateCS
 
         Engine engine = Engine.MYMEMORY; //Default engine
 
-        Pair clientCredentials = new Pair();
+        Pair clientCredentials = new Pair("","");
         List<Pair> allLanguages = new List<Pair>();
-        Pair languagePreference = new Pair();
+        Pair languagePreference = new Pair("","");
         public String email { get; set; }
 
         public Pair getClientCredentials()

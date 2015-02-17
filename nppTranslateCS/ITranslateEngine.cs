@@ -20,6 +20,8 @@ namespace nppTranslateCS
         string Translate(string from, string to, string text);
 
         List<Pair> GetSupportedLanguages();
+
+        Pair getDefaultLanguagePreference();
     }
 
     

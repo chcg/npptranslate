@@ -45,7 +45,6 @@ namespace nppTranslateCS
             if(engine.ToString().Equals("BING"))
             {
                 model.setEngine(TranslateSettingsModel.Engine.BING);
-
             }
             else
             {
@@ -64,7 +63,6 @@ namespace nppTranslateCS
             {
                 model.setClientCredentials(new Pair(clientCred.ToString().Split(';')[0], clientCred.ToString().Split(';')[1]));
             }
-
 
             StringBuilder allLangs = new StringBuilder(1023);
             Win32.GetPrivateProfileString("TRANSLATE", "ALLLANGUAGES", "", allLangs, 1023, dataSourcePath);
@@ -144,6 +142,8 @@ namespace nppTranslateCS
         private void updateModel(frmBingCredentials frm)
         {
             this.model.setClientCredentials(new Pair(frm.getBINGClientID(), frm.getBINGClientSecret()));
+
+            String currentEngine = model.getEngine().ToString();
             
             int selectedEngineIndex = frm.getSelectedEngineIndex();
             switch (selectedEngineIndex)
@@ -156,6 +156,13 @@ namespace nppTranslateCS
                     break;
             }
             model.email = frm.getEmail();
+
+            //Clear the languages if engine change happened
+            if(!currentEngine.Equals(model.getEngine().ToString()))
+            {
+                model.setAllLanguages(new List<Pair>());
+                model.setLanguagePreference(new Pair());
+            }
 
         }
 
@@ -204,7 +211,8 @@ namespace nppTranslateCS
 
         private void updateView(frmTranslateSettings frm)
         {
-            
+            frm.clearLanguages();
+
             foreach(Pair lang in model.getAllLanguages())
             {
                 frm.addFromLanguage((string)lang.Second);

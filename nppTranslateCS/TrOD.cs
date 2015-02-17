@@ -28,12 +28,23 @@ namespace nppTranslateCS
 
         public string Translate(string from, string to, string text)
         {
+            updateEngineBasedOnPreference();
+
+            if(Util.isStringEmpty(from) || Util.isStringEmpty(to))
+            {
+                throw new InvalidLanguagePreferenceException();
+            }
+            if(engine.ToString().Equals(TranslateSettingsModel.Engine.MYMEMORY.ToString()) && from.Equals("AUTO"))
+            {
+                throw new InvalidLanguagePreferenceException();
+            }
+
             Main.writeLog("Fetching translation with translation params: ");
             Main.writeLog(" * from: " + from);
             Main.writeLog(" * to: " + to);
             Main.writeLog(" * text: " + text);
 
-            updateEngineBasedOnPreference();
+            
             String result = engine.Translate(from, to, text);
             Main.writeLog("Returning translation result: " + result);
             return result;
@@ -60,6 +71,11 @@ namespace nppTranslateCS
             }
 
             Main.writeLog("Current Engine: " +engine.ToString());
+        }
+
+        public Pair getDefaultLanguagePreference()
+        {
+            return engine.getDefaultLanguagePreference();
         }
     }
 

@@ -311,7 +311,7 @@ namespace nppTranslateCS
             {
                return trSettingsModel.getLanguagePreference();
             }        
-            return null;   
+            return new Pair("","");   
         }
 
 
@@ -322,10 +322,9 @@ namespace nppTranslateCS
                 if (trSettingsModel.getAllLanguages().Count == 0)
                 {
                     List<Pair> fetchedList = new List<Pair>();
-                    fetchedList.AddRange(translateEngine.GetSupportedLanguages());
-                    fetchedList.Add(new Pair("AUTO","AUTO"));
+                    fetchedList.AddRange(translateEngine.GetSupportedLanguages());     
                     trSettingsModel.setAllLanguages(fetchedList);
-                    trSettingsModel.setLanguagePreference(new Pair("AUTO", "en"));
+                    trSettingsModel.setLanguagePreference(translateEngine.getDefaultLanguagePreference());
                 }
                 return true;
             }
@@ -346,7 +345,7 @@ namespace nppTranslateCS
 
         internal static void LaunchHelp()
         {
-            Process.Start("IExplore.exe", "https://sourceforge.net/apps/mediawiki/npptranslate/index.php?title=Main_Page");
+            Process.Start("https://sourceforge.net/apps/mediawiki/npptranslate/index.php?title=Main_Page");
         }
 
 
@@ -486,22 +485,47 @@ namespace nppTranslateCS
 
         internal static void handleException(Exception e) 
         {
-            String message = "Unknown Error";
-
-            if (e.GetType().Equals(typeof(BINGClientCredentialException)))
-            {
-                message  = "Client ID and Client Secret must be provided in order to use Translate functionality" ;
-                
-            }
-            else
-            {
-                message = "Unable to translate. Please check Engine settings and language preference.";
-            }
-
-            writeLog(message);
+            
             writeLog(e.Message);
             writeLog(e.StackTrace);
-            MessageBox.Show(message);
+            
+
+            MessageBoxIcon messageType = MessageBoxIcon.Error;
+
+            
+            String message = "Unknown Error";
+
+            try
+            {
+
+                if (e.GetType().Equals(typeof(BINGClientCredentialException)))
+                {
+                    message = "Client ID and Client Secret must be provided in order to use BING translate engine. Please review engine settings and try again.";
+                    messageType = MessageBoxIcon.Exclamation;
+                    MessageBox.Show(message, "Translate Error", MessageBoxButtons.OK, messageType);
+                    dlgBingSettings.ShowDialog();
+                    return;
+
+                }
+                if (e.GetType().Equals(typeof(InvalidLanguagePreferenceException)))
+                {
+                    message = "Invalid language combination for translation. Please review language settings and try again.";
+                    messageType = MessageBoxIcon.Exclamation;
+                    MessageBox.Show(message, "Translate Error", MessageBoxButtons.OK, messageType);
+                    dlgTrSettings.ShowDialog();
+                    return;
+                }
+                else
+                {
+                    message = "Unable to translate. Please check engine settings and language preference. \n\nDetailed Error Message: [ " + e.Message + " ]";
+                    MessageBox.Show(message, "Translate Error", MessageBoxButtons.OK, messageType);
+                }
+                
+            }
+            finally
+            {
+                writeLog(message);
+            }
 
         }
 
@@ -537,6 +561,7 @@ namespace nppTranslateCS
             Version currentVersion = new Version(pluginVersion);
             Version version_2_1_0_0 = new Version("2.1.0.0");
             Version version_3_0_0_0 = new Version("3.0.0.0");
+            Version version_3_1_0_0 = new Version("3.1.0.0");
 
             if( installedVersion < version_2_1_0_0)
             {
@@ -548,14 +573,51 @@ namespace nppTranslateCS
                 migrate2_1_0_0To3_0_0_0();
             }
 
+            if (installedVersion < version_3_1_0_0)
+            {
+                migrate3_0_0_0To3_1_0_0();
+            }
+
+            //just for good practice, that current version is also up to date
+            if (currentVersion < version_3_1_0_0)
+                throw new Exception("Check the version, migration path exists for a version which is great than current version.");
+
             updateVersion();
 
         }
+
+        
 
         private static void updateVersion()
         {
             Win32.WritePrivateProfileString("VERSION", "version", pluginVersion, iniFilePath);
         }
+
+        private static void migrate3_0_0_0To3_1_0_0()
+        {
+            StringBuilder engine = new StringBuilder(255);
+            Win32.GetPrivateProfileString("ENGINE", "engine", "", engine, 255, iniFilePath);
+
+            StringBuilder pref = new StringBuilder(255);
+            Win32.GetPrivateProfileString("TRANSLATE", "LANGUAGEPREF", "", pref, 255, iniFilePath);
+
+            if (!Util.isStringEmpty(pref.ToString()))
+            {
+                if (pref.ToString().StartsWith("AUTO") && engine.ToString().Equals("MYMEMORY"))
+                    Win32.WritePrivateProfileString("TRANSLATE", "LANGUAGEPREF", "", iniFilePath);
+            }
+
+            StringBuilder allLanguages = new StringBuilder(1023);
+            Win32.GetPrivateProfileString("TRANSLATE", "ALLLANGUAGES", "", allLanguages, 1023, iniFilePath);
+
+            if (!Util.isStringEmpty(allLanguages.ToString()))
+            {
+                if (allLanguages.ToString().Contains("AUTO:AUTO") && engine.ToString().Equals("MYMEMORY"))
+                    Win32.WritePrivateProfileString("TRANSLATE", "ALLLANGUAGES", "", iniFilePath);
+            }
+            
+        }
+
 
         private static void migrate2_1_0_0To3_0_0_0()
         {
