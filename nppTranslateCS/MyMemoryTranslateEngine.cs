@@ -111,7 +111,7 @@ namespace nppTranslateCS
 
         private MyMemoryResponseModel makeGETRequest(String url)
         {
-            Main.writeLog(url);
+            Util.writeInfoLog(url);
             //Prepare OAuth request 
             WebRequest webRequest = WebRequest.Create(url);
             webRequest.Method = "GET";

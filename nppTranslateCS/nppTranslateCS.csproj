@@ -51,6 +51,7 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CutomTraceListener.cs" />
     <Compile Include="Forms\frmBingCredentials.cs">
       <SubType>Form</SubType>
     </Compile>

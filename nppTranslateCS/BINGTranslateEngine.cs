@@ -36,8 +36,8 @@ namespace nppTranslateCS
 
             String clientId = (String)cc.First;
             String clientSecret = (string)cc.Second;
-            Main.writeLog("ClientID: " + maskString(clientId));
-            Main.writeLog("clientSecret: " + maskString(clientSecret));
+            Util.writeInfoLog("ClientID: " + maskString(clientId));
+            Util.writeInfoLog("clientSecret: " + maskString(clientSecret));
 
             if( (((string)cc.First).Length == 0) || (((string)cc.First).Length == 0))
             {

@@ -39,20 +39,20 @@ namespace nppTranslateCS
                 throw new InvalidLanguagePreferenceException();
             }
 
-            Main.writeLog("Fetching translation with translation params: ");
-            Main.writeLog(" * from: " + from);
-            Main.writeLog(" * to: " + to);
-            Main.writeLog(" * text: " + text);
+            Util.writeInfoLog("Fetching translation with translation params: ");
+            Util.writeInfoLog(" * from: " + from);
+            Util.writeInfoLog(" * to: " + to);
+            Util.writeInfoLog(" * text: " + text);
 
             
             String result = engine.Translate(from, to, text);
-            Main.writeLog("Returning translation result: " + result);
+            Util.writeInfoLog("Returning translation result: " + result);
             return result;
         }
 
         public List<Pair> GetSupportedLanguages()
         {
-            Main.writeLog("Fetching languages...");
+            Util.writeInfoLog("Fetching languages...");
 
             updateEngineBasedOnPreference();
             return engine.GetSupportedLanguages();
@@ -70,7 +70,7 @@ namespace nppTranslateCS
                     break;
             }
 
-            Main.writeLog("Current Engine: " +engine.ToString());
+            Util.writeInfoLog("Current Engine: " + engine.ToString());
         }
 
         public Pair getDefaultLanguagePreference()

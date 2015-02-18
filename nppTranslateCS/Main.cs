@@ -63,7 +63,7 @@ namespace nppTranslateCS
             try
             {
                 initializeTraceListner();
-                writeLog("################ Translate plugin (Version: " + pluginVersion + ") initializing...");
+                Util.writeInfoLog("################ Translate plugin (Version: " + pluginVersion + ") initializing...");
 
                 if (!File.Exists(iniFilePath))
                 {
@@ -105,24 +105,24 @@ namespace nppTranslateCS
             bool is64BitProcess = (IntPtr.Size == 8);
             bool is64BitOperatingSystem = is64BitProcess || InternalCheckIsWow64();
 
-            writeLog("OSVersion: " + Environment.OSVersion.ToString());
-            writeLog("Is64Bit: " + is64BitOperatingSystem.ToString());
-            writeLog(".NET (CLR) Version: " + Environment.Version.ToString());
+            Util.writeInfoLog("OSVersion: " + Environment.OSVersion.ToString());
+            Util.writeInfoLog("Is64Bit: " + is64BitOperatingSystem.ToString());
+            Util.writeInfoLog(".NET (CLR) Version: " + Environment.Version.ToString());
 
-            writeLog("Default Language Info:");
+            Util.writeInfoLog("Default Language Info:");
             logCultureInfo(CultureInfo.InstalledUICulture);
-            writeLog("Current Culture Info:");
+            Util.writeInfoLog("Current Culture Info:");
             logCultureInfo(Thread.CurrentThread.CurrentCulture);
         }
 
         private static void logCultureInfo(CultureInfo ci)
         {
-            writeLog(String.Format(" * Name: {0}", ci.Name));
-            writeLog(String.Format(" * Display Name: {0}", ci.DisplayName));
-            writeLog(String.Format(" * English Name: {0}", ci.EnglishName));
-            writeLog(String.Format(" * 2-letter ISO Name: {0}", ci.TwoLetterISOLanguageName));
-            writeLog(String.Format(" * 3-letter ISO Name: {0}", ci.ThreeLetterISOLanguageName));
-            writeLog(String.Format(" * 3-letter Win32 API Name: {0}", ci.ThreeLetterWindowsLanguageName));
+            Util.writeInfoLog(String.Format(" * Name: {0}", ci.Name));
+            Util.writeInfoLog(String.Format(" * Display Name: {0}", ci.DisplayName));
+            Util.writeInfoLog(String.Format(" * English Name: {0}", ci.EnglishName));
+            Util.writeInfoLog(String.Format(" * 2-letter ISO Name: {0}", ci.TwoLetterISOLanguageName));
+            Util.writeInfoLog(String.Format(" * 3-letter ISO Name: {0}", ci.ThreeLetterISOLanguageName));
+            Util.writeInfoLog(String.Format(" * 3-letter Win32 API Name: {0}", ci.ThreeLetterWindowsLanguageName));
         }
 
         private static void logEncodingInfo()
@@ -133,8 +133,8 @@ namespace nppTranslateCS
             StringBuilder currentNativeLangEncoding = new StringBuilder();
             Win32.SendMessage(PluginBase.nppData._nppHandle, NppMsg.NPPM_GETCURRENTNATIVELANGENCODING, Win32.MAX_PATH, currentNativeLangEncoding);
 
-            writeLog("bufferEncoding: " + bufferEncoding.ToString());
-            writeLog("currentNativeLangEncoding: " + currentNativeLangEncoding.ToString());
+            Util.writeInfoLog("bufferEncoding: " + bufferEncoding.ToString());
+            Util.writeInfoLog("currentNativeLangEncoding: " + currentNativeLangEncoding.ToString());
         }
 
         [DllImport("kernel32.dll", SetLastError = true, CallingConvention = CallingConvention.Winapi)]
@@ -183,7 +183,7 @@ namespace nppTranslateCS
 
         internal static void PluginCleanUp()
         {
-            writeLog("################ Translate plugin cleaning up"); 
+            Util.writeInfoLog("################ Translate plugin cleaning up"); 
             translateSettingsController.persistModel();
         }
 
@@ -197,20 +197,12 @@ namespace nppTranslateCS
         }
 
 
-        internal static void BEGINFUN(String txt)
-        {
-            writeLog("BEGIN -- " + txt);
-        }
-
-        internal static void ENDFUN(String txt)
-        {
-            writeLog("END -- " + txt);
-        }
+        
 
 
         internal static String getSelectedText()
         {
-            BEGINFUN("getSelectedText");
+            Util.BEGINFUN("getSelectedText");
 
             try
             {
@@ -229,16 +221,16 @@ namespace nppTranslateCS
                     return "";
                 }
 
-                writeLog("Selected text range: " + selected);
+                Util.writeInfoLog("Selected text range: " + selected);
 
                 logEncodingInfo();
 
                 Encoding w1252 = Encoding.GetEncoding(1252);
                 string converted = Encoding.UTF8.GetString(w1252.GetBytes(selected));
 
-                writeLog("Final selected text after conversion: " + converted);
+                Util.writeInfoLog("Final selected text after conversion: " + converted);
 
-                ENDFUN("getSelectedText");
+                Util.ENDFUN("getSelectedText");
 
                 return converted;
 
@@ -253,7 +245,7 @@ namespace nppTranslateCS
 
         internal static void TranslateText()
         {
-            BEGINFUN("TranslateText");
+            Util.BEGINFUN("TranslateText");
             try
             {
                 string text = getSelectedText();
@@ -274,7 +266,7 @@ namespace nppTranslateCS
                 handleException(ex);
                 return ;
             }
-            ENDFUN("TranslateText");
+            Util.ENDFUN("TranslateText");
 
         }
 
@@ -282,7 +274,7 @@ namespace nppTranslateCS
         {
             try
             {
-                    dlgBingSettings.ShowDialog();
+                dlgBingSettings.ShowDialog();
             }
             catch (Exception ex)
             {
@@ -307,11 +299,14 @@ namespace nppTranslateCS
 
         internal static Pair getLanguagePreference()
         {
+            Util.writeInfoLog("getting Language Preference");
+
             if (initLanguages())
             {
                return trSettingsModel.getLanguagePreference();
             }        
-            return new Pair("","");   
+            
+            return new Pair("", "");
         }
 
 
@@ -321,6 +316,8 @@ namespace nppTranslateCS
             {
                 if (trSettingsModel.getAllLanguages().Count == 0)
                 {
+                    Util.writeInfoLog("All languages empty in the model, trying to fetch..");
+
                     List<Pair> fetchedList = new List<Pair>();
                     fetchedList.AddRange(translateEngine.GetSupportedLanguages());     
                     trSettingsModel.setAllLanguages(fetchedList);
@@ -352,6 +349,7 @@ namespace nppTranslateCS
 
         internal static void TranslateText_Reverse() 
         {
+            Util.BEGINFUN("TranslateText_Reverse");
             try
             {
                 string text = getSelectedText();
@@ -375,8 +373,9 @@ namespace nppTranslateCS
             catch (Exception ex)
             {
                 handleException(ex);
-                return;
             }
+
+            Util.ENDFUN("TranslateText_Reverse");
         }
 
         internal static string DecoupleMixedCase(string inStr)
@@ -452,7 +451,7 @@ namespace nppTranslateCS
 
         internal static void showTranslationResults(string from, string to, string transResult)
         {
-            BEGINFUN("showTranslationResults");
+            Util.BEGINFUN("showTranslationResults");
 
             try
             {
@@ -480,14 +479,14 @@ namespace nppTranslateCS
             {
                 handleException(ex);
             }
-            ENDFUN("showTranslationResults");
+            Util.ENDFUN("showTranslationResults");
         }
 
         internal static void handleException(Exception e) 
         {
-            
-            writeLog(e.Message);
-            writeLog(e.StackTrace);
+
+            Util.writeInfoLog(e.Message);
+            Util.writeInfoLog(e.StackTrace);
             
 
             MessageBoxIcon messageType = MessageBoxIcon.Error;
@@ -524,7 +523,7 @@ namespace nppTranslateCS
             }
             finally
             {
-                writeLog(message);
+                Util.writeErrorLog(message);
             }
 
         }
@@ -532,7 +531,7 @@ namespace nppTranslateCS
         
         internal static void migrateIfRequired()
         {
-            BEGINFUN("migrateIfRequired");
+            Util.BEGINFUN("migrateIfRequired");
 
             //No direct way to get current Version in < 2.0.0.0, ge it indirectly;
 
@@ -545,14 +544,14 @@ namespace nppTranslateCS
             {
                 strInstalledVersion = installedVersion.ToString();
             }
-            writeLog("Installed version (" + installedVersion.ToString() + ") ");
+            Util.writeInfoLog("Installed version (" + installedVersion.ToString() + ") ");
 
 #if DEBUG
             //MessageBox.Show("Existing installed version: "+strInstalledVersion);
 #endif
             executeMigrationPath(strInstalledVersion);
 
-            ENDFUN("migrateIfRequired");
+            Util.ENDFUN("migrateIfRequired");
         }
 
         internal static void executeMigrationPath(String versionStr)
@@ -632,7 +631,7 @@ namespace nppTranslateCS
 
         internal static void initializeTraceListner()
         {
-            FileLogTraceListener listner = new FileLogTraceListener();
+            CustomTraceListener listner = new CustomTraceListener();
             listner.BaseFileName = PluginName + ".log";
             listner.TraceOutputOptions = TraceOptions.DateTime;
             listner.DiskSpaceExhaustedBehavior = DiskSpaceExhaustedOption.ThrowException;
@@ -645,11 +644,5 @@ namespace nppTranslateCS
             Trace.Listeners.Add(listner);
             
         }
-
-        internal static void writeLog(String text)
-        {
-            Trace.TraceInformation(text);
-        }
-
     }
 }
