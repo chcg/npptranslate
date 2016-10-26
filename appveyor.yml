@@ -8,7 +8,7 @@ configuration:
 
 
 build_script:
-    - cd c:\projects\npptranslate\code\nppTranslateCS\
+    - cd c:\projects\npptranslate\nppTranslateCS\
     - msbuild nppTranslateCS.sln /p:configuration="%configuration%"
 
 
