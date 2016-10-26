@@ -30,7 +30,6 @@ namespace nppTranslateCS
         static string iniFilePath = null;
         static string logDirectoryPath = null;
         //static string logFilePath = null;
-        static int idMyDlg = -1;
         static frmTranslateSettings dlgTrSettings = new frmTranslateSettings();
         static frmBingCredentials dlgBingSettings = new frmBingCredentials();
         static TranslateSettingsModel trSettingsModel = new TranslateSettingsModel();
@@ -178,7 +177,6 @@ namespace nppTranslateCS
             PluginBase.SetCommand(4, "Language Settings", setLanguagePreference);
             PluginBase.SetCommand(5, "About", AboutDlg);
             PluginBase.SetCommand(6, "Help", LaunchHelp);
-            idMyDlg = 6;
         }
 
         internal static void PluginCleanUp()
