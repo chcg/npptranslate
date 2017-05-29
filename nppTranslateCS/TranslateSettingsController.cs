@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NppPluginNET;
+using Kbg.NppPluginNET.PluginInfrastructure;
 using System.Web.UI;
 using nppTranslateCS.Forms;
 using System.Windows.Forms;

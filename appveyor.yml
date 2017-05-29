@@ -1,6 +1,9 @@
-version: 3.1.{build}
+version: 3.1.1.0.{build}
 image: Visual Studio 2015
 
+platform:
+    - x64
+    - Any CPU
 
 configuration:
     - Release
@@ -8,8 +11,49 @@ configuration:
 
 
 build_script:
-    - cd c:\projects\npptranslate\nppTranslateCS\
-    - msbuild nppTranslateCS.sln /p:configuration="%configuration%"
+    - cd "%APPVEYOR_BUILD_FOLDER%"\nppTranslateCS\
+    - msbuild nppTranslateCS.sln /m /p:configuration="%configuration%" /p:platform="%platform%" /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
 
+after_build:
+    - cd "%APPVEYOR_BUILD_FOLDER%"\nppTranslateCS
+    - ps: >-
 
+        if ($env:PLATFORM -eq "x64" -and $env:CONFIGURATION -eq "Release") {
+            Push-AppveyorArtifact "bin\x64\$env:CONFIGURATION\Translate.dll" -FileName Translate.dll
+        }
+
+        if ($env:PLATFORM -eq "Any CPU" -and $env:CONFIGURATION -eq "Release") {
+            Push-AppveyorArtifact "bin\$env:CONFIGURATION\Translate.dll" -FileName Translate.dll
+        }
+
+        if ($($env:APPVEYOR_REPO_TAG) -eq "true" -and $env:CONFIGURATION -eq "Release") {
+            if($env:PLATFORM -eq "x64"){
+            $ZipFileName = "Translate_$($env:APPVEYOR_REPO_TAG_NAME)_x64.zip"
+            Remove-Item bin\x64\$env:CONFIGURATION\*.exp
+            Remove-Item bin\x64\$env:CONFIGURATION\*.lib
+            7z a $ZipFileName bin\x64\$env:CONFIGURATION\*
+            }
+            if($env:PLATFORM -eq "Any CPU"){
+            $ZipFileName = "Translate_$($env:APPVEYOR_REPO_TAG_NAME)_x86.zip"
+            Remove-Item bin\$env:CONFIGURATION\*.exp
+            Remove-Item bin\$env:CONFIGURATION\*.lib
+            7z a $ZipFileName bin\$env:CONFIGURATION\*
+            }
+        }
+
+artifacts:
+  - path: Translate_*.zip
+    name: releases
+
+deploy:
+    provider: GitHub
+    auth_token:
+        secure: !!TODO, see https://www.appveyor.com/docs/deployment/github/#provider-settings!!
+    artifact: releases
+    draft: false
+    prerelease: false
+    force_update: true
+    on:
+        appveyor_repo_tag: true
+        configuration: Release
 

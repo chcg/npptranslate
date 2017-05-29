@@ -5,7 +5,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
-using NppPluginNET;
+using Kbg.NppPluginNET.PluginInfrastructure;
 using System.Collections.Generic;
 using System.Diagnostics;
 using nppTranslateCS.Forms;
@@ -42,7 +42,7 @@ namespace nppTranslateCS
             //Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.CreateSpecificCulture("de-AT");
 
             StringBuilder sbIniFilePath = new StringBuilder(Win32.MAX_PATH);
-            Win32.SendMessage(PluginBase.nppData._nppHandle, NppMsg.NPPM_GETPLUGINSCONFIGDIR, Win32.MAX_PATH, sbIniFilePath);
+            Win32.SendMessage(PluginBase.nppData._nppHandle, (uint)NppMsg.NPPM_GETPLUGINSCONFIGDIR, Win32.MAX_PATH, sbIniFilePath);
             String iniDirectoryFilePath = Path.Combine(sbIniFilePath.ToString(), PluginName);
             if (!Directory.Exists(iniDirectoryFilePath)) Directory.CreateDirectory(iniDirectoryFilePath);
             iniFilePath = Path.Combine(iniDirectoryFilePath, PluginName + ".ini");
@@ -127,10 +127,11 @@ namespace nppTranslateCS
         private static void logEncodingInfo()
         {
             StringBuilder bufferEncoding = new StringBuilder();
-            Win32.SendMessage(PluginBase.nppData._nppHandle, NppMsg.NPPM_GETBUFFERENCODING, Win32.MAX_PATH, bufferEncoding);
+            //Win32.SendMessage(PluginBase.nppData._nppHandle, (uint)NppMsg.NPPM_GETBUFFERENCODING, Win32.MAX_PATH, bufferEncoding);
+            //TODO: ADAPT THIS TWO CALLS, signature changed, but seems to be not available form n++ gateway class
 
             StringBuilder currentNativeLangEncoding = new StringBuilder();
-            Win32.SendMessage(PluginBase.nppData._nppHandle, NppMsg.NPPM_GETCURRENTNATIVELANGENCODING, Win32.MAX_PATH, currentNativeLangEncoding);
+            Win32.SendMessage(PluginBase.nppData._nppHandle, (uint)NppMsg.NPPM_GETCURRENTNATIVELANGENCODING, 0, 0);
 
             Util.writeInfoLog("bufferEncoding: " + bufferEncoding.ToString());
             Util.writeInfoLog("currentNativeLangEncoding: " + currentNativeLangEncoding.ToString());
@@ -209,7 +210,7 @@ namespace nppTranslateCS
                 int cpMin = (int)Win32.SendMessage(editHandle, SciMsg.SCI_GETSELECTIONSTART, 0, 0);
                 int cpMax = (int)Win32.SendMessage(editHandle, SciMsg.SCI_GETSELECTIONEND, 0, 0);
 
-                Sci_TextRange tr = new Sci_TextRange(cpMin, cpMax, cpMax - cpMin + 1);
+                TextRange tr = new TextRange(cpMin, cpMax, cpMax - cpMin + 1);
             
                 Win32.SendMessage(editHandle, SciMsg.SCI_GETTEXTRANGE, 0, tr.NativePointer);
 
