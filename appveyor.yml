@@ -1,5 +1,5 @@
 version: 3.1.1.0.{build}
-image: Visual Studio 2015
+image: Visual Studio 2017
 
 platform:
     - x64
@@ -28,16 +28,16 @@ after_build:
 
         if ($($env:APPVEYOR_REPO_TAG) -eq "true" -and $env:CONFIGURATION -eq "Release") {
             if($env:PLATFORM -eq "x64"){
-            $ZipFileName = "Translate_$($env:APPVEYOR_REPO_TAG_NAME)_x64.zip"
-            Remove-Item bin\x64\$env:CONFIGURATION\*.exp
-            Remove-Item bin\x64\$env:CONFIGURATION\*.lib
-            7z a $ZipFileName bin\x64\$env:CONFIGURATION\*
+                $ZipFileName = "Translate_$($env:APPVEYOR_REPO_TAG_NAME)_x64.zip"
+                Remove-Item bin\x64\$env:CONFIGURATION\*.exp
+                Remove-Item bin\x64\$env:CONFIGURATION\*.lib
+                7z a $ZipFileName bin\x64\$env:CONFIGURATION\*
             }
             if($env:PLATFORM -eq "Any CPU"){
-            $ZipFileName = "Translate_$($env:APPVEYOR_REPO_TAG_NAME)_x86.zip"
-            Remove-Item bin\$env:CONFIGURATION\*.exp
-            Remove-Item bin\$env:CONFIGURATION\*.lib
-            7z a $ZipFileName bin\$env:CONFIGURATION\*
+                $ZipFileName = "Translate_$($env:APPVEYOR_REPO_TAG_NAME)_x86.zip"
+                Remove-Item bin\$env:CONFIGURATION\*.exp
+                Remove-Item bin\$env:CONFIGURATION\*.lib
+                7z a $ZipFileName bin\$env:CONFIGURATION\*
             }
         }
 
