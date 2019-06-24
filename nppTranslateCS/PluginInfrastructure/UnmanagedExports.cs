@@ -1,4 +1,4 @@
-﻿// NPP plugin platform for .Net v0.93.96 by Kasper B. Graversen etc.
+﻿// NPP plugin platform for .Net v0.94.00 by Kasper B. Graversen etc.
 using System;
 using System.Runtime.InteropServices;
 using Kbg.NppPluginNET.PluginInfrastructure;
@@ -50,7 +50,7 @@ namespace nppTranslateCS
             if (notification.Header.Code == (uint)NppMsg.NPPN_TBMODIFICATION)
             {
                 PluginBase._funcItems.RefreshItems();
-                //Main.SetToolBarIcon();
+                //NPPTranslateCommentedOut: Main.SetToolBarIcon();
             }
             else if (notification.Header.Code == (uint)NppMsg.NPPN_SHUTDOWN)
             {
@@ -59,7 +59,7 @@ namespace nppTranslateCS
             }
             else
             {
-	            //Main.OnNotification(notification);
+	            //NPPTranslateCommentedOut: Main.OnNotification(notification);
             }
         }
     }

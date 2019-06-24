@@ -1,4 +1,4 @@
-﻿// NPP plugin platform for .Net v0.93.96 by Kasper B. Graversen etc.
+﻿// NPP plugin platform for .Net v0.94.00 by Kasper B. Graversen etc.
 using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
@@ -279,6 +279,7 @@ namespace Kbg.NppPluginNET.PluginInfrastructure
         [DllImport("kernel32")]
         public static extern int GetPrivateProfileInt(string lpAppName, string lpKeyName, int nDefault, string lpFileName);
 
+        ///added by NppTranslate
         [DllImport("kernel32")]
         internal static extern int GetPrivateProfileString(string section, string key, string def, StringBuilder retVal,
             int size, string filePath);
