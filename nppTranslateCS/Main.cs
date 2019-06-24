@@ -341,7 +341,7 @@ namespace nppTranslateCS
 
         internal static void LaunchHelp()
         {
-            Process.Start("https://sourceforge.net/apps/mediawiki/npptranslate/index.php?title=Main_Page");
+            Process.Start("https://sourceforge.net/p/npptranslate/wiki/Home/");
         }
 
 
