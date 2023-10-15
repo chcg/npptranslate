@@ -61,7 +61,7 @@ namespace nppTranslateCS
             //It is gaurunteed to have directory created after this
             try
             {
-                initializeTraceListner();
+                InitializeTraceListner();
                 Util.writeInfoLog("################ Translate plugin (Version: " + pluginVersion + ") initializing...");
 
                 if (!File.Exists(iniFilePath))
@@ -72,7 +72,7 @@ namespace nppTranslateCS
                 else
                 {
                     //File exists, check for migration from older version
-                    migrateIfRequired();
+                    MigrateIfRequired();
                 }
                 //Here, It is gaurunteed to have a settings file either crerated or preexisting or migrated(blank)
                 
@@ -89,17 +89,17 @@ namespace nppTranslateCS
 
                 translateEngine = new TrOD(trSettingsModel);
 
-                logSystemInfo();
+                LogSystemInfo();
             }
             catch (Exception ex)
             {
-                handleException(ex);
+                HandleException(ex);
             }
 
             
         }
 
-        private static void logSystemInfo()
+        private static void LogSystemInfo()
         {
             bool is64BitProcess = (IntPtr.Size == 8);
             bool is64BitOperatingSystem = is64BitProcess || InternalCheckIsWow64();
@@ -109,12 +109,12 @@ namespace nppTranslateCS
             Util.writeInfoLog(".NET (CLR) Version: " + Environment.Version.ToString());
 
             Util.writeInfoLog("Default Language Info:");
-            logCultureInfo(CultureInfo.InstalledUICulture);
+            LogCultureInfo(CultureInfo.InstalledUICulture);
             Util.writeInfoLog("Current Culture Info:");
-            logCultureInfo(Thread.CurrentThread.CurrentCulture);
+            LogCultureInfo(Thread.CurrentThread.CurrentCulture);
         }
 
-        private static void logCultureInfo(CultureInfo ci)
+        private static void LogCultureInfo(CultureInfo ci)
         {
             Util.writeInfoLog(String.Format(" * Name: {0}", ci.Name));
             Util.writeInfoLog(String.Format(" * Display Name: {0}", ci.DisplayName));
@@ -124,7 +124,7 @@ namespace nppTranslateCS
             Util.writeInfoLog(String.Format(" * 3-letter Win32 API Name: {0}", ci.ThreeLetterWindowsLanguageName));
         }
 
-        private static void logEncodingInfo()
+        private static void LogEncodingInfo()
         {
             StringBuilder bufferEncoding = new StringBuilder();
             //Win32.SendMessage(PluginBase.nppData._nppHandle, (uint)NppMsg.NPPM_GETBUFFERENCODING, Win32.MAX_PATH, bufferEncoding);
@@ -174,8 +174,8 @@ namespace nppTranslateCS
             PluginBase.SetCommand(0, "Translate Selected", TranslateText, new ShortcutKey(true, true, false, Keys.Z));
             PluginBase.SetCommand(1, "Translate Selected-Swapped Preference", TranslateText_Reverse, new ShortcutKey(true, true, true, Keys.Z));
             PluginBase.SetCommand(2, "Translate CamelCase/underscore_case", TranslateCodeString, new ShortcutKey(true, true, false, Keys.X));
-            PluginBase.SetCommand(3, "Translate Engine Settings", setBINGCredentials); 
-            PluginBase.SetCommand(4, "Language Settings", setLanguagePreference);
+            PluginBase.SetCommand(3, "Translate Engine Settings", SetBINGCredentials); 
+            PluginBase.SetCommand(4, "Language Settings", SetLanguagePreference);
             PluginBase.SetCommand(5, "About", AboutDlg);
             PluginBase.SetCommand(6, "Help", LaunchHelp);
         }
@@ -199,7 +199,7 @@ namespace nppTranslateCS
         
 
 
-        internal static String getSelectedText()
+        internal static String GetSelectedText()
         {
             Util.BEGINFUN("getSelectedText");
 
@@ -222,7 +222,7 @@ namespace nppTranslateCS
 
                 Util.writeInfoLog("Selected text range: " + selected);
 
-                logEncodingInfo();
+                LogEncodingInfo();
 
                 Encoding w1252 = Encoding.GetEncoding(1252);
                 string converted = Encoding.UTF8.GetString(w1252.GetBytes(selected));
@@ -236,7 +236,7 @@ namespace nppTranslateCS
             }
             catch (Exception ex)
             {
-                handleException(ex);
+                HandleException(ex);
                 return "";
             }
         }
@@ -247,29 +247,29 @@ namespace nppTranslateCS
             Util.BEGINFUN("TranslateText");
             try
             {
-                string text = getSelectedText();
+                string text = GetSelectedText();
 
                 if (text.Length == 0)
                     return;
 
-                Pair langPref = getLanguagePreference();
+                Pair langPref = GetLanguagePreference();
 
                 //readProxySettings();
 
                 String result = translateEngine.Translate((string)langPref.First, (string)langPref.Second, text);
 
-                showTranslationResults((string)langPref.First, (string)langPref.Second, result);
+                ShowTranslationResults((string)langPref.First, (string)langPref.Second, result);
             }
             catch (Exception ex)
             {
-                handleException(ex);
+                HandleException(ex);
                 return ;
             }
             Util.ENDFUN("TranslateText");
 
         }
 
-        internal static void setBINGCredentials()
+        internal static void SetBINGCredentials()
         {
             try
             {
@@ -277,30 +277,30 @@ namespace nppTranslateCS
             }
             catch (Exception ex)
             {
-                handleException(ex);
+                HandleException(ex);
             }
         }
 
-        internal static void setLanguagePreference()
+        internal static void SetLanguagePreference()
         {
             try
             {
-                if (initLanguages())
+                if (InitLanguages())
                 {
                     dlgTrSettings.ShowDialog();
                 }
             }
             catch (Exception ex)
             {
-                handleException(ex);
+                HandleException(ex);
             }
         }
 
-        internal static Pair getLanguagePreference()
+        internal static Pair GetLanguagePreference()
         {
             Util.writeInfoLog("getting Language Preference");
 
-            if (initLanguages())
+            if (InitLanguages())
             {
                return trSettingsModel.getLanguagePreference();
             }        
@@ -309,7 +309,7 @@ namespace nppTranslateCS
         }
 
 
-        internal static Boolean initLanguages()
+        internal static Boolean InitLanguages()
         {
             try
             {
@@ -326,7 +326,7 @@ namespace nppTranslateCS
             }
             catch (Exception ex)
             {
-                handleException(ex);
+                HandleException(ex);
                 return false;
             }
         }
@@ -351,12 +351,12 @@ namespace nppTranslateCS
             Util.BEGINFUN("TranslateText_Reverse");
             try
             {
-                string text = getSelectedText();
+                string text = GetSelectedText();
 
                 if (text.Length == 0)
                     return;
 
-                Pair langPref = getLanguagePreference();
+                Pair langPref = GetLanguagePreference();
 
                 if(langPref.First.Equals("AUTO"))
                 {
@@ -367,11 +367,11 @@ namespace nppTranslateCS
 
                 String result = translateEngine.Translate((String)langPref.Second, (string)langPref.First, text);
 
-                showTranslationResults((string)langPref.Second, (string)langPref.First, result);
+                ShowTranslationResults((string)langPref.Second, (string)langPref.First, result);
             }
             catch (Exception ex)
             {
-                handleException(ex);
+                HandleException(ex);
             }
 
             Util.ENDFUN("TranslateText_Reverse");
@@ -405,12 +405,12 @@ namespace nppTranslateCS
             }
             catch (Exception ex)
             {
-                handleException(ex);
+                HandleException(ex);
                 return inStr;
             }
         }
 
-        internal static string replaceUndescores(string inStr)
+        internal static string ReplaceUndescores(string inStr)
         {
             return inStr.Replace('_',' ');
         }
@@ -419,24 +419,24 @@ namespace nppTranslateCS
         {
             try
             {
-                string selectedText = getSelectedText();
+                string selectedText = GetSelectedText();
 
                 if (selectedText.Equals(""))
                     return;
 
-                string processedText = DecoupleMixedCase(replaceUndescores(selectedText));
+                string processedText = DecoupleMixedCase(ReplaceUndescores(selectedText));
 
-                Pair fromTo = getLanguagePreference();
+                Pair fromTo = GetLanguagePreference();
 
                 //readProxySettings();
 
                 string result = translateEngine.Translate((string)fromTo.First, (string)fromTo.Second, processedText);
 
-                showTranslationResults((string)fromTo.First, (string)fromTo.Second, result);
+                ShowTranslationResults((string)fromTo.First, (string)fromTo.Second, result);
             }
             catch (Exception ex)
             {
-                handleException(ex);
+                HandleException(ex);
             }
         }
 
@@ -448,7 +448,7 @@ namespace nppTranslateCS
             Clipboard.SetText(strData);
         }
 
-        internal static void showTranslationResults(string from, string to, string transResult)
+        internal static void ShowTranslationResults(string from, string to, string transResult)
         {
             Util.BEGINFUN("showTranslationResults");
 
@@ -476,12 +476,12 @@ namespace nppTranslateCS
             }
             catch (Exception ex)
             {
-                handleException(ex);
+                HandleException(ex);
             }
             Util.ENDFUN("showTranslationResults");
         }
 
-        internal static void handleException(Exception e) 
+        internal static void HandleException(Exception e)
         {
 
             Util.writeInfoLog(e.Message);
@@ -528,7 +528,7 @@ namespace nppTranslateCS
         }
 
         
-        internal static void migrateIfRequired()
+        internal static void MigrateIfRequired()
         {
             Util.BEGINFUN("migrateIfRequired");
 
@@ -548,12 +548,12 @@ namespace nppTranslateCS
 #if DEBUG
             //MessageBox.Show("Existing installed version: "+strInstalledVersion);
 #endif
-            executeMigrationPath(strInstalledVersion);
+            ExecuteMigrationPath(strInstalledVersion);
 
             Util.ENDFUN("migrateIfRequired");
         }
 
-        internal static void executeMigrationPath(String versionStr)
+        internal static void ExecuteMigrationPath(String versionStr)
         {
             Version installedVersion = new Version(versionStr);
             Version currentVersion = new Version(pluginVersion);
@@ -563,35 +563,35 @@ namespace nppTranslateCS
 
             if( installedVersion < version_2_1_0_0)
             {
-                migrateLegacyTo2_1_0();
+                MigrateLegacyTo2_1_0();
             }
 
             if (installedVersion < version_3_0_0_0)
             {
-                migrate2_1_0_0To3_0_0_0();
+                Migrate2_1_0_0To3_0_0_0();
             }
 
             if (installedVersion < version_3_1_0_0)
             {
-                migrate3_0_0_0To3_1_0_0();
+                Migrate3_0_0_0To3_1_0_0();
             }
 
             //just for good practice, that current version is also up to date
             if (currentVersion < version_3_1_0_0)
                 throw new Exception("Check the version, migration path exists for a version which is great than current version.");
 
-            updateVersion();
+            UpdateVersion();
 
         }
 
         
 
-        private static void updateVersion()
+        private static void UpdateVersion()
         {
             Win32.WritePrivateProfileString("VERSION", "version", pluginVersion, iniFilePath);
         }
 
-        private static void migrate3_0_0_0To3_1_0_0()
+        private static void Migrate3_0_0_0To3_1_0_0()
         {
             StringBuilder engine = new StringBuilder(255);
             Win32.GetPrivateProfileString("ENGINE", "engine", "", engine, 255, iniFilePath);
@@ -617,28 +617,30 @@ namespace nppTranslateCS
         }
 
 
-        private static void migrate2_1_0_0To3_0_0_0()
+        private static void Migrate2_1_0_0To3_0_0_0()
         {
             Win32.WritePrivateProfileString("ENGINE", "engine", "MYMEMORY", iniFilePath);
             Win32.WritePrivateProfileString("MYMEMORY", "email", "", iniFilePath);
         }
 
-        internal static void migrateLegacyTo2_1_0()
+        internal static void MigrateLegacyTo2_1_0()
         {      
             System.IO.File.WriteAllText(iniFilePath, string.Empty);
         }
 
-        internal static void initializeTraceListner()
+        internal static void InitializeTraceListner()
         {
-            CustomTraceListener listner = new CustomTraceListener();
-            listner.BaseFileName = PluginName + ".log";
-            listner.TraceOutputOptions = TraceOptions.DateTime;
-            listner.DiskSpaceExhaustedBehavior = DiskSpaceExhaustedOption.ThrowException;
-            listner.Location= LogFileLocation.Custom;
-            listner.CustomLocation = logDirectoryPath;
-            //listner.MaxFileSize = 1024;
-            listner.LogFileCreationSchedule = LogFileCreationScheduleOption.Daily;
-            listner.AutoFlush = true;
+            CustomTraceListener listner = new CustomTraceListener
+            {
+                BaseFileName = PluginName + ".log",
+                TraceOutputOptions = TraceOptions.DateTime,
+                DiskSpaceExhaustedBehavior = DiskSpaceExhaustedOption.ThrowException,
+                Location = LogFileLocation.Custom,
+                CustomLocation = logDirectoryPath,
+                //listner.MaxFileSize = 1024;
+                LogFileCreationSchedule = LogFileCreationScheduleOption.Daily,
+                AutoFlush = true
+            };
 
             Trace.Listeners.Add(listner);
             
