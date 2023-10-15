@@ -27,7 +27,7 @@ jobs:
 
     - name: zip artifacts for x64
       if: matrix.build_platform == 'x64' && matrix.build_configuration == 'Release'
-      run: 7z a Translate_${{ steps.tagName.outputs.tag }}_${{ matrix.build_platform }}.zip .\bin\x64\Translate.dll
+      run: 7z a Translate_${{ steps.tagName.outputs.tag }}_${{ matrix.build_platform }}.zip .\nppTranslateCS\bin\x64\Translate.dll
 
     - name: Archive artifacts for x64
       if: matrix.build_platform == 'x64' && matrix.build_configuration == 'Release'
@@ -38,7 +38,7 @@ jobs:
 
     - name: zip artifacts for AnyCPU
       if: matrix.build_platform == 'AnyCPU' && matrix.build_configuration == 'Release'
-      run: 7z a Translate_${{ steps.tagName.outputs.tag }}_${{ matrix.build_platform }}.zip .\bin\Translate.dll
+      run: 7z a Translate_${{ steps.tagName.outputs.tag }}_${{ matrix.build_platform }}.zip .\nppTranslateCS\bin\Translate.dll
 
     - name: Archive artifacts for AnyCPU
       if: matrix.build_platform == 'AnyCPU' && matrix.build_configuration == 'Release'
