@@ -20,7 +20,7 @@ jobs:
 
     - name: MSBuild of plugin dll
       working-directory: nppTranslateCS\
-      run: msbuild nppTranslateCS.vcxproj /m /p:configuration="${{ matrix.build_configuration }}" /p:platform="${{ matrix.build_platform }}"
+      run: msbuild nppTranslateCS.csproj /m /p:configuration="${{ matrix.build_configuration }}" /p:platform="${{ matrix.build_platform }}"
 
     - uses: olegtarasov/get-tag@v2.1.2
       id: tagName
